@@ -1,21 +1,23 @@
 package com.example.demo.service.irepositories;
 
-import com.example.demo.model.Product;
+import com.example.demo.repository.entity.ProductEntity;
 
 import java.util.List;
 import java.util.Optional;
 
+//TODO: Esta interface simula o que já faz o ProductRepository
+//TODO: para adicionar mais camadas de separação, pode se fazer uma facade
 public interface IProductrepository {
 
-    Product addProduct(Product product);
+    ProductEntity addProduct(ProductEntity productEntity);
 
-    Optional<Product> getProduct(String id);
+    Optional<ProductEntity> getProduct(String id);
 
-    public Product updateAll(Product product);
+    public ProductEntity updateAll(ProductEntity productEntity);
 
     void deleteAllProductsById(List<String> productsId);
 
-    List<Product> getAllProduct();
+    List<ProductEntity> getAllProduct();
 
     Boolean verifyExistById(String id);
 

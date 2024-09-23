@@ -1,6 +1,6 @@
 package com.example.demo.v1.controller;
 
-import com.example.demo.model.Product;
+import com.example.demo.repository.entity.ProductEntity;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -17,9 +17,10 @@ public class ProductRequestDTO {
     private String name;
     private Integer price;
 
+    //TODO: Os 2 métodos abaixo podem ser convertidos em um só, com o id sendo opcional
 
-    public Product createEntity() {
-       return  Product.builder()
+    public ProductEntity createEntity() {
+       return  ProductEntity.builder()
                 .productID(UUID.randomUUID().toString())
                 .name(getName())
                 .price(getPrice())
@@ -27,8 +28,8 @@ public class ProductRequestDTO {
 
     }
 
-    public Product toEntity(final String id) {
-        return  Product.builder()
+    public ProductEntity toEntity(final String id) {
+        return  ProductEntity.builder()
                 .productID(id)
                 .name(getName())
                 .price(getPrice())
