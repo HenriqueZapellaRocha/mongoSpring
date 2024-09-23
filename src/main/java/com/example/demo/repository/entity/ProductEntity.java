@@ -1,4 +1,4 @@
-package com.example.demo.model;
+package com.example.demo.repository.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -13,7 +13,9 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Product {
+public class ProductEntity {
+
+    //TODO: Esta é a entidade do banco de dados, renomeada para ProductEntity e movida para dentro do pacote repository
 
     @Id
     private String productID;

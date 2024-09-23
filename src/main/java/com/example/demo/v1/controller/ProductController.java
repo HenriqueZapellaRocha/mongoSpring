@@ -1,11 +1,8 @@
 package com.example.demo.v1.controller;
 
-import java.security.ProtectionDomain;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Optional;
 
-import com.example.demo.repository.ProductRepository;
 import com.example.demo.service.services.CookieService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -13,7 +10,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
-import com.example.demo.model.Product;
+import com.example.demo.repository.entity.ProductEntity;
 import com.example.demo.service.services.ProductService;
 
 @RequiredArgsConstructor
@@ -25,34 +22,41 @@ public class ProductController {
 
 
     @PostMapping("/add")
-    public Product addProduct(@RequestBody final ProductRequestDTO product) {
+    //TODO: Como estamos dentro da ProductController, não precisa colocar "product" nos métodos. Ex: add() ou create()
+    //TODO: Não há necessidade de marcar as assinaturas como final
+    public ProductEntity addProduct(@RequestBody final ProductRequestDTO product) {
         return productService.addProduct(product);
     }
 
+    //TODO: O verbo HTTP é GET, logo é redundante repetir o get na rota. ex: /{id}
     @GetMapping("/get/{id}")
-    public Product getById(@PathVariable final String id, final HttpServletResponse response) {
-        final Product product = productService.getById(id);
+    public ProductEntity getById(@PathVariable final String id, final HttpServletResponse response) {
+        final ProductEntity productEntity = productService.getById(id);
         CookieService.setCookie(response, "last", id);
-        return product;
+        return productEntity;
     }
 
+    //TODO: O verbo HTTP é GET, logo é redundante repetir o get na rota. ex: /last
     @GetMapping("/getLast")
-    public Product getLast(final HttpServletRequest request) {
+    public ProductEntity getLast(final HttpServletRequest request) {
         final Cookie cookie = CookieService.getCookie(request, "last");
 
         return productService.getById(cookie.getValue());
     }
 
+    //TODO: O verbo HTTP é GET, logo é redundante repetir o get na rota. ex: /
     @GetMapping("/getAll")
-    public List<Product> getAll() {
+    public List<ProductEntity> getAll() {
         return productService.getAll();
     }
 
+    //TODO: Esta lógica atualiza apenas 1 product
     @PutMapping("/updateAll/{id}")
-    public Product updateAll(@RequestBody final ProductRequestDTO product, @PathVariable final String id) {
+    public ProductEntity updateAll(@RequestBody final ProductRequestDTO product, @PathVariable final String id) {
         return productService.updateProduct(product, id);
     }
 
+    //TODO: O verbo HTTP é DELETE, logo é redundante repetir o delete na rota. ex: /{id}
     @DeleteMapping("/deleteById/{id}")
     public void deleteById(@PathVariable final String id) {
         final LinkedList<String> ids = new LinkedList<>();
@@ -60,6 +64,8 @@ public class ProductController {
         productService.deleteProductAllById(ids);
     }
 
+    //TODO: O verbo HTTP é DELETE, logo é redundante repetir o delete na rota. ex: /
+    //TODO: Este método delete vários (many) e não todos (all)
     @DeleteMapping("/deleteAllById")
     public void deleteAllById(@RequestBody final List<String> id) {
         productService.deleteProductAllById(id);
