@@ -15,8 +15,6 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Builder
 public class ProductEntity {
 
-    //TODO: Esta é a entidade do banco de dados, renomeada para ProductEntity e movida para dentro do pacote repository
-
     @Id
     private String productID;
     private String name;

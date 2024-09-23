@@ -1,5 +1,6 @@
 package com.example.demo.v1.controller;
 
+import com.example.demo.exception.MissingInputValuesException;
 import com.example.demo.repository.entity.ProductEntity;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -16,23 +17,19 @@ public class ProductRequestDTO {
 
     private String name;
     private Integer price;
+    
 
-    //TODO: Os 2 métodos abaixo podem ser convertidos em um só, com o id sendo opcional
-
-    public ProductEntity createEntity() {
+    public ProductEntity toEntity(String id) {
        return  ProductEntity.builder()
-                .productID(UUID.randomUUID().toString())
+                .productID(id != null ? id : UUID.randomUUID().toString())
                 .name(getName())
                 .price(getPrice())
                 .build();
 
     }
 
-    public ProductEntity toEntity(final String id) {
-        return  ProductEntity.builder()
-                .productID(id)
-                .name(getName())
-                .price(getPrice())
-                .build();
-    }
+    public void validate() {
+       if ( this.getName() == null ||  this.getPrice() == null )
+           throw new MissingInputValuesException("Product fields are not valid");
+   }
 }

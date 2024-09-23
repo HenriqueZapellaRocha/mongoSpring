@@ -16,7 +16,7 @@ public class CookieService {
 
     public static void setCookie(final HttpServletResponse response, final String name, final String value) {
         final Cookie cookie = new Cookie(name, value);
-        cookie.setPath("/product/getLast");
+        cookie.setPath("/product/last");
         cookie.setHttpOnly(true);
         response.addCookie(cookie);
     }

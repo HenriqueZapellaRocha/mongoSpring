@@ -1,9 +1,6 @@
 package com.example.demo.handler;
 
-
-import com.example.demo.dtos.MissingInputValuesExceptionDTO;
 import com.example.demo.dtos.NotFoundExceptionDTO;
-import com.example.demo.exception.MissingInputValuesException;
 import com.example.demo.exception.NotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ControllerAdvice;
