@@ -14,21 +14,23 @@ import java.util.Optional;
 @Service
 public class CookieService {
 
-    public static void setCookie(final HttpServletResponse response, final String name, final String value) {
-        final Cookie cookie = new Cookie(name, value);
+    public static void setCookie(final HttpServletResponse response, String name, String value) {
+        Cookie cookie = new Cookie(name, value);
         cookie.setPath("/product/last");
         cookie.setHttpOnly(true);
         response.addCookie(cookie);
     }
 
 
-    public static Cookie getCookie(final HttpServletRequest request, final String name) {
+    public static Cookie getCookie(HttpServletRequest request, String name) {
 
         return Arrays.stream(Optional.ofNullable(request.getCookies())
-                        .orElseThrow(() -> new CookieNotSetException("No cookie is set")))//this is for case no cookie is set
+                        //this is for case no cookie is set
+                        .orElseThrow(() -> new CookieNotSetException("No cookie is set")))
                         .filter(cookie -> cookie.getName().equals(name))
                         .findFirst()
-                        .orElseThrow(() -> new NotFoundException("Cookie not found")); /*this is case the cookie is not found =) */
+                        /*this is case the cookie is not found =) */
+                        .orElseThrow(() -> new NotFoundException("Cookie not found")); 
     }
 
 }

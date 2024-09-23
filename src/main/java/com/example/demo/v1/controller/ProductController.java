@@ -7,6 +7,7 @@ import com.example.demo.service.services.CookieService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,7 +23,7 @@ public class ProductController {
 
 
     @PostMapping("/add")
-    public ProductEntity add(@RequestBody ProductRequestDTO product) {
+    public ProductEntity add(@RequestBody @Valid ProductRequestDTO product) {
         return productService.add(product);
     }
 
@@ -47,7 +48,7 @@ public class ProductController {
     }
 
     @PutMapping("/updateProduct/{id}")
-    public ProductEntity updateAll(@RequestBody ProductRequestDTO product, @PathVariable String id) {
+    public ProductEntity updateAll(@RequestBody @Valid ProductRequestDTO product, @PathVariable String id) {
         return productService.update(product, id);
     }
 

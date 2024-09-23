@@ -2,6 +2,10 @@ package com.example.demo.v1.controller;
 
 import com.example.demo.exception.MissingInputValuesException;
 import com.example.demo.repository.entity.ProductEntity;
+
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -15,8 +19,12 @@ import java.util.UUID;
 @Builder
 public class ProductRequestDTO {
 
-    private String name;
-    private Integer price;
+   @NotBlank(message = "Invalid Name: Blank name")
+   @NotNull(message = "Invalid Name: null")
+   private String name;
+   @NotNull(message = "Invalid Price: null")
+   @Min(value = 0, message = "Invalid Price: Negative number")
+   private Integer price;
     
 
     public ProductEntity toEntity(String id) {
