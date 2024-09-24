@@ -1,6 +1,7 @@
 package com.example.demo.service.services;
 
-import com.example.demo.exception.MissingInputValuesException;
+
+import com.example.demo.exception.NotFoundException;
 import com.example.demo.repository.entity.ProductEntity;
 import com.example.demo.repository.ProductRepository;
 
@@ -20,7 +21,6 @@ public class ProductService {
     private final ProductRepository productRepository;
 
     public ProductEntity add(ProductRequestDTO product) {
-        product.validate();
         //Converting productRequest to productEntity ( DB version )
         ProductEntity productEntityEntitie = product.toEntity(null);
         return productRepository.save(productEntityEntitie);
@@ -28,13 +28,16 @@ public class ProductService {
 
     public ProductEntity getById(String id) {
         return productRepository.findById(id)
-        .orElseThrow(() -> new MissingInputValuesException("No product found"));
+        .orElseThrow(() -> new NotFoundException("No product found"));
     }
 
     public ProductEntity update(ProductRequestDTO product, String id) {
-        product.validate();
         ProductEntity productEntity = product.toEntity(id);
+        if(productRepository.existsById(id)) {
         return productRepository.save(productEntity);
+        } else {
+            throw new NotFoundException("Not found");
+        }
     }
 
     public List<ProductEntity> getAll() {
@@ -42,9 +45,8 @@ public class ProductService {
     }
 
     public void deleteMany(List<String> ids) {
-
     if (ids.stream().anyMatch(Objects::isNull) || ids.isEmpty()) {
-        throw new MissingInputValuesException("invalide fields");
+        throw new NotFoundException("Not found products with list ids");
     }
         productRepository.deleteAllById(ids);
     }

@@ -29,7 +29,7 @@ public class CookieService {
                         .orElseThrow(() -> new CookieNotSetException("No cookie is set")))
                         .filter(cookie -> cookie.getName().equals(name))
                         .findFirst()
-                        /*this is case the cookie is not found =) */
+                        //this is case the cookie is not found =) 
                         .orElseThrow(() -> new NotFoundException("Cookie not found")); 
     }
 

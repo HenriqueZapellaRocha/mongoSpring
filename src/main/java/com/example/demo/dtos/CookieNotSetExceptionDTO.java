@@ -9,5 +9,5 @@ import lombok.Setter;
 @Setter
 public class CookieNotSetExceptionDTO {
 
-    private String message;
+    private String error;
 }

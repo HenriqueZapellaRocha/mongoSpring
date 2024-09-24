@@ -1,6 +1,6 @@
 package com.example.demo.v1.controller;
 
-import com.example.demo.exception.MissingInputValuesException;
+
 import com.example.demo.repository.entity.ProductEntity;
 
 import jakarta.validation.constraints.Min;
@@ -19,11 +19,10 @@ import java.util.UUID;
 @Builder
 public class ProductRequestDTO {
 
-   @NotBlank(message = "Invalid Name: Blank name")
-   @NotNull(message = "Invalid Name: null")
+   @NotBlank(message = "Name: Blank name")
    private String name;
-   @NotNull(message = "Invalid Price: null")
-   @Min(value = 0, message = "Invalid Price: Negative number")
+   @NotNull(message = "Price: Price is blank")
+   @Min(value = 0, message = "Price: Negative number")
    private Integer price;
     
 
@@ -35,9 +34,4 @@ public class ProductRequestDTO {
                 .build();
 
     }
-
-    public void validate() {
-       if ( this.getName() == null ||  this.getPrice() == null )
-           throw new MissingInputValuesException("Product fields are not valid");
-   }
 }
