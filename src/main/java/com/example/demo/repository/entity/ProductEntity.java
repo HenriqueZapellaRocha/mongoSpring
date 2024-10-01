@@ -18,5 +18,5 @@ public class ProductEntity {
     @Id
     private String productID;
     private String name;
-    private Integer price;
+    private Double price;
 }

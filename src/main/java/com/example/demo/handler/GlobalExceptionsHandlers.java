@@ -6,10 +6,15 @@ import com.example.demo.dtos.InvalidInputValuesExceptionDTO;
 import com.example.demo.dtos.NotFoundExceptionDTO;
 import com.example.demo.exception.CookieNotSetException;
 import com.example.demo.exception.NotFoundException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
 @RestControllerAdvice
@@ -22,19 +27,32 @@ public class GlobalExceptionsHandlers {
         return new NotFoundExceptionDTO(e.getMessage());
     }
 
+@ResponseStatus(HttpStatus.NOT_FOUND)
+@ResponseBody
+@ExceptionHandler(HttpClientErrorException.class)
+public NotFoundExceptionDTO handler(final HttpClientErrorException e) {
+    try {
+
+        String responseBody = e.getResponseBodyAsString();
+        
+        ObjectMapper objectMapper = new ObjectMapper();
+        JsonNode root = objectMapper.readTree(responseBody);
+
+        String message = root.path("message").asText();
+        
+        return new NotFoundExceptionDTO(message);
+    } catch (Exception ex) {
+        return new NotFoundExceptionDTO("Erro desconhecido");
+    }
+}
+
+
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ResponseBody
     @ExceptionHandler(CookieNotSetException.class)
     public CookieNotSetExceptionDTO handler(final CookieNotSetException e) {
         return new CookieNotSetExceptionDTO(e.getMessage());
     }
-
-    // @ResponseStatus(HttpStatus.PRECONDITION_FAILED)
-    // @ResponseBody
-    // @ExceptionHandler(MissingInputValuesException.class)
-    // public MissingInputValuesExceptionDTO handler(final MissingInputValuesException e) {
-    //     return new MissingInputValuesExceptionDTO(e.getMessage());
-    // }
 
     @ResponseStatus(HttpStatus.NOT_FOUND)
     @ResponseBody
@@ -47,7 +65,6 @@ public class GlobalExceptionsHandlers {
     @ResponseBody
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public InvalidInputValuesExceptionDTO handle(MethodArgumentNotValidException ex) {
-    
         return new InvalidInputValuesExceptionDTO(ex.getBindingResult()
         .getFieldErrors()
         .stream()

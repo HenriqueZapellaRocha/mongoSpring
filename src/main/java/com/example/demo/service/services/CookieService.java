@@ -14,7 +14,7 @@ import java.util.Optional;
 @Service
 public class CookieService {
 
-    public static void setCookie(final HttpServletResponse response, String name, String value) {
+    public static void setCookie(HttpServletResponse response, String name, String value) {
         Cookie cookie = new Cookie(name, value);
         cookie.setPath("/product/last");
         cookie.setHttpOnly(true);
@@ -23,7 +23,6 @@ public class CookieService {
 
 
     public static Cookie getCookie(HttpServletRequest request, String name) {
-
         return Arrays.stream(Optional.ofNullable(request.getCookies())
                         //this is for case no cookie is set
                         .orElseThrow(() -> new CookieNotSetException("No cookie is set")))

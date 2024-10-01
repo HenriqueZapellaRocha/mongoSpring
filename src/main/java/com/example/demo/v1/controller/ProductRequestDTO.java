@@ -19,11 +19,11 @@ import java.util.UUID;
 @Builder
 public class ProductRequestDTO {
 
-   @NotBlank(message = "Name: Blank name")
+   @NotBlank(message = "name: blank name")
    private String name;
-   @NotNull(message = "Price: Price is blank")
-   @Min(value = 0, message = "Price: Negative number")
-   private Integer price;
+   @NotNull(message = "price: blank price")
+   @Min(value = 0, message = "price: negative number")
+   private Double price;
     
 
     public ProductEntity toEntity(String id) {
@@ -32,6 +32,5 @@ public class ProductRequestDTO {
                 .name(getName())
                 .price(getPrice())
                 .build();
-
     }
 }

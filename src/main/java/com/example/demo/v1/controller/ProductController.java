@@ -4,6 +4,8 @@ import java.util.LinkedList;
 import java.util.List;
 
 import com.example.demo.service.services.CookieService;
+
+
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -23,28 +25,32 @@ public class ProductController {
 
 
     @PostMapping("/add")
-    public ProductEntity add(@RequestBody @Valid ProductRequestDTO product) {
-        return productService.add(product);
+    public ProductEntity add(@RequestBody @Valid ProductRequestDTO product,
+                            @RequestParam(name = "currency") String currency) {
+        return productService.add(product,currency, "USD");
     }
 
     @GetMapping("/{id}")
-    public ProductEntity getById(@PathVariable String id, HttpServletResponse response) {
-        System.out.println("estou aqui");
-        final ProductEntity productEntity = productService.getById(id);
+    public ProductEntity getById(@PathVariable String id, HttpServletResponse response, 
+                                        @RequestParam(name = "currency") String currency) {
+
+        final ProductEntity productEntity = productService.getById(id,"USD", currency);
         CookieService.setCookie(response, "last", id);
         return productEntity;
     }
 
     @GetMapping("/last")
-    public ProductEntity getLast(HttpServletRequest request) {
+    public ProductEntity getLast(HttpServletRequest request,
+                                 @RequestParam(name = "currency") String currency) {
         final Cookie cookie = CookieService.getCookie(request, "last");
 
-        return productService.getById(cookie.getValue());
+        return productService.getById(cookie.getValue(),"USD",currency);
     }
 
     @GetMapping("/All")
-    public List<ProductEntity> getAll() {
-        return productService.getAll();
+    public List<ProductEntity> getAll(HttpServletRequest request,
+                    @RequestParam(name = "currency") String currency) {
+        return productService.getAll("USD", currency);
     }
 
     @PutMapping("/updateProduct/{id}")
