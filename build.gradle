@@ -25,6 +25,7 @@ dependencies {
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 	compileOnly 'org.projectlombok:lombok:1.18.20'
 	annotationProcessor 'org.projectlombok:lombok:1.18.20'
+	testImplementation group: 'de.flapdoodle.embed', name: 'de.flapdoodle.embed.mongo', version: '4.17.0'
 	implementation group: 'org.springframework.boot', name: 'spring-boot-starter-validation', version: '3.3.4'
 }
 

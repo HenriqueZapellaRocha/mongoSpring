@@ -30,7 +30,8 @@ public class ProductService {
 
     public ProductEntity getById(String id, String from, String to) {
         ProductEntity product = productRepository.findById(id)
-        .orElseThrow(() -> new NotFoundException("No product found"));
+            .orElseThrow(() -> new NotFoundException("No product found"));
+
         product.setPrice( product.getPrice() * exchangeService.makeExchange(from, to) );
         return product;
     }
@@ -45,9 +46,9 @@ public class ProductService {
     }
 
     public List<ProductEntity> getAll(String from,String to) {
-        Double value = exchangeService.makeExchange(from, to );
+        Double value = exchangeService.makeExchange( from, to );
         return productRepository.findAll().stream()
-                .peek(p -> p.setPrice( p.getPrice() * value))
+                .peek( p -> p.setPrice( p.getPrice() * value ) )
                 .collect(Collectors.toList());
     }
 
