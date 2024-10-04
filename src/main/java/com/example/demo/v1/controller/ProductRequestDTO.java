@@ -15,7 +15,6 @@ import java.util.UUID;
 
 @Data
 @AllArgsConstructor
-@NoArgsConstructor
 @Builder
 public class ProductRequestDTO {
 
@@ -24,7 +23,7 @@ public class ProductRequestDTO {
    @NotNull(message = "price: blank price")
    @Min(value = 0, message = "price: negative number")
    private Double price;
-    
+
 
     public ProductEntity toEntity(String id) {
        return  ProductEntity.builder()

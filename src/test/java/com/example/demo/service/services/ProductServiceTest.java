@@ -10,10 +10,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
-
+import java.util.LinkedList;
+import java.util.List;
 import java.util.UUID;
 
+
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest
@@ -48,6 +51,7 @@ class ProductServiceTest {
         assertEquals(productRequestDTO.getName(), product.getName());
         assertEquals(product, productRepository.findById(product.getProductID()).orElse(null));
     }
+
     @Test
     @DisplayName("get by ID test")
     void getByIdTest() {
@@ -66,5 +70,82 @@ class ProductServiceTest {
        assertEquals(product.getProductID(), productRecived.getProductID());
        assertEquals(product.getName(), productRecived.getName());
        assertEquals(product.getPrice() * 5.44, productRecived.getPrice());
+    }
+
+    @Test
+    @DisplayName("Update person")
+    void updateTest() {
+        ProductEntity product = ProductEntity.builder()
+                                             .name("Clang")
+                                             .productID(null)
+                                             .price(200.0)
+                                             .build();
+        productRepository.save(product);
+        ProductRequestDTO productRequestDTO = new ProductRequestDTO("GCC", 100.0);
+        ProductEntity productUpdated = productService.update(productRequestDTO, product.getProductID());
+        assertNotNull(productUpdated);
+        assertEquals(productUpdated, productRepository.findById(product.getProductID()).orElse(null));
+        assertNotEquals(product.getName(), productUpdated.getName());
+        assertNotEquals(product.getPrice(), productUpdated.getPrice());
+    }
+
+    @Test
+    @DisplayName("Get all products")
+    void getAllTest() {
+        LinkedList<ProductEntity> products = new LinkedList<>();
+        products.add(ProductEntity.builder()
+                .name("Clang")
+                .productID(null)
+                .price(200.0)
+                .build());
+        products.add(ProductEntity.builder()
+                .name("GCC")
+                .productID(null)
+                .price(300.0)
+                .build());
+        products.add(ProductEntity.builder()
+                .name("JVM")
+                .productID(null)
+                .price(500.0)
+                .build());
+
+        productRepository.saveAll(products);
+
+        when(exchangeService.makeExchange(any(), any())).thenReturn(5.44);
+
+        List<ProductEntity> list = productService.getAll("USD","BRL");
+        assertNotNull(list);
+        assertEquals(3, list.size());
+    }
+
+    @Test
+    @DisplayName("Delete many products")
+    void deleteTest() {
+        LinkedList<ProductEntity> products = new LinkedList<>();
+        products.add(ProductEntity.builder()
+                .name("Clang")
+                .productID(null)
+                .price(200.0)
+                .build());
+        products.add(ProductEntity.builder()
+                .name("GCC")
+                .productID(null)
+                .price(300.0)
+                .build());
+        products.add(ProductEntity.builder()
+                .name("JVM")
+                .productID(null)
+                .price(500.0)
+                .build());
+
+
+        productRepository.saveAll(products);
+        List<String> productsToDelete = productRepository.findAll().stream()
+                .map(ProductEntity::getProductID)
+                .toList();
+
+       productService.deleteMany(productsToDelete);
+
+       assertEquals(0,productRepository.findAll().size());
     }
 }

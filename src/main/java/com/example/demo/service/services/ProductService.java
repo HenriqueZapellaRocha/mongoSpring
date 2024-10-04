@@ -39,7 +39,7 @@ public class ProductService {
     public ProductEntity update(ProductRequestDTO product, String id) {
         ProductEntity productEntity = product.toEntity(id);
         if(productRepository.existsById(id)) {
-        return productRepository.save(productEntity);
+            return productRepository.save(productEntity);
         } else {
             throw new NotFoundException("Not found");
         }
@@ -53,9 +53,9 @@ public class ProductService {
     }
 
     public void deleteMany(List<String> ids) {
-    if (ids.stream().anyMatch(Objects::isNull) || ids.isEmpty()) {
-        throw new NotFoundException("Blank list");
-    }
+        if (ids.stream().anyMatch(Objects::isNull) || ids.isEmpty()) {
+            throw new NotFoundException("Blank list");
+        }
         productRepository.deleteAllById(ids);
     }
 }
