@@ -11,20 +11,21 @@ import java.util.Objects;
 @Service
 public class ExchangeService {
 
-    public Double makeExchange(String from, String to) {
+    public Double makeExchange( String from, String to ) {
 
-        if (from.equals(to))
+        if ( from.equals( to ) )
             return 1.0;
 
         RestTemplate querry = new RestTemplate();
 
-        @SuppressWarnings("unchecked")
+        @SuppressWarnings( "unchecked" )
         Map<String, Map<String, String>> result = querry.getForObject(
                 "https://economia.awesomeapi.com.br/json/last/" + from + "-" + to
-                , Map.class);
+                , Map.class );
 
 
-        Map<String, String> exchange = Objects.requireNonNull(result).get(from.toUpperCase() + to.toUpperCase());
-        return Double.parseDouble(exchange.get("bid"));
+        Map<String, String> exchange = Objects.requireNonNull( result )
+                                              .get( from.toUpperCase() + to.toUpperCase() );
+        return Double.parseDouble( exchange.get( "bid" ) );
     }
 }

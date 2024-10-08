@@ -18,55 +18,55 @@ import com.example.demo.service.services.ProductService;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/product")
+@RequestMapping( "/product" )
 public class ProductController {
 
     private final ProductService productService;
 
 
-    @PostMapping("/add")
-    public ProductEntity add(@RequestBody @Valid ProductRequestDTO product,
-                            @RequestParam(name = "currency") String currency) {
-        return productService.add(product,currency, "USD");
+    @PostMapping( "/add" )
+    public ProductEntity add( @RequestBody @Valid ProductRequestDTO product,
+                            @RequestParam( name = "currency" ) String currency ) {
+        return productService.add( product,currency, "USD" );
     }
 
-    @GetMapping("/{id}")
-    public ProductEntity getById(@PathVariable String id, HttpServletResponse response, 
-                                        @RequestParam(name = "currency") String currency) {
+    @GetMapping( "/{id}" )
+    public ProductEntity getById( @PathVariable String id, HttpServletResponse response, 
+                                        @RequestParam( name = "currency" ) String currency ) {
 
-        final ProductEntity productEntity = productService.getById(id,"USD", currency);
-        CookieService.setCookie(response, "last", id);
+        final ProductEntity productEntity = productService.getById( id,"USD", currency );
+        CookieService.setCookie( response, "last", id );
         return productEntity;
     }
 
-    @GetMapping("/last")
-    public ProductEntity getLast(HttpServletRequest request,
-                                 @RequestParam(name = "currency") String currency) {
-        final Cookie cookie = CookieService.getCookie(request, "last");
+    @GetMapping( "/last" )
+    public ProductEntity getLast( HttpServletRequest request,
+                                 @RequestParam( name = "currency" ) String currency ) {
+        final Cookie cookie = CookieService.getCookie( request, "last" );
 
-        return productService.getById(cookie.getValue(),"USD",currency);
+        return productService.getById( cookie.getValue(),"USD",currency );
     }
 
-    @GetMapping("/All")
-    public List<ProductEntity> getAll(HttpServletRequest request,
-                    @RequestParam(name = "currency") String currency) {
-        return productService.getAll("USD", currency);
+    @GetMapping( "/All" )
+    public List<ProductEntity> getAll( HttpServletRequest request,
+                    @RequestParam( name = "currency" ) String currency ) {
+        return productService.getAll( "USD", currency );
     }
 
-    @PutMapping("/updateProduct/{id}")
-    public ProductEntity updateAll(@RequestBody @Valid ProductRequestDTO product, @PathVariable String id) {
-        return productService.update(product, id);
+    @PutMapping( "/updateProduct/{id}" )
+    public ProductEntity updateAll( @RequestBody @Valid ProductRequestDTO product, @PathVariable String id ) {
+        return productService.update( product, id );
     }
 
-    @DeleteMapping("/{id}")
-    public void deleteById(@PathVariable String id) {
+    @DeleteMapping( "/{id}" )
+    public void deleteById( @PathVariable String id ) {
         final LinkedList<String> ids = new LinkedList<>();
-        ids.add(id);
-        productService.deleteMany(ids);
+        ids.add( id );
+        productService.deleteMany( ids );
     }
 
     @DeleteMapping
-    public void deleteMany(@RequestBody List<String> id) {
-        productService.deleteMany(id);
+    public void deleteMany( @RequestBody List<String> id ) {
+        productService.deleteMany( id );
     }
 }

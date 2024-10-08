@@ -18,18 +18,18 @@ import java.util.UUID;
 @Builder
 public class ProductRequestDTO {
 
-   @NotBlank(message = "name: blank name")
+   @NotBlank( message = "name: blank name" )
    private String name;
-   @NotNull(message = "price: blank price")
-   @Min(value = 0, message = "price: negative number")
+   @NotNull( message = "price: blank price" )
+   @Min( value = 0, message = "price: negative number" )
    private Double price;
 
 
-    public ProductEntity toEntity(String id) {
+    public ProductEntity toEntity( String id ) {
        return  ProductEntity.builder()
-                .productID(id != null ? id : UUID.randomUUID().toString())
-                .name(getName())
-                .price(getPrice())
+                .productID( id != null ? id : UUID.randomUUID().toString() )
+                .name( getName() )
+                .price( getPrice() )
                 .build();
     }
 }

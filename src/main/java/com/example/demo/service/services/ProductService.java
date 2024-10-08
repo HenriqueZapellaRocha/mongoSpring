@@ -21,41 +21,41 @@ public class ProductService {
     private final ProductRepository productRepository;
     private final ExchangeService exchangeService;
 
-    public ProductEntity add(ProductRequestDTO product, String from, String to) {
+    public ProductEntity add( ProductRequestDTO product, String from, String to ) {
         //Converting productRequest to productEntity ( DB version )
-        product.setPrice( product.getPrice() * exchangeService.makeExchange(from, to) );
-        ProductEntity productEntityEntitie = product.toEntity(null);
-        return productRepository.save(productEntityEntitie);
+        product.setPrice(  product.getPrice() * exchangeService.makeExchange( from, to )  );
+        ProductEntity productEntityEntitie = product.toEntity( null );
+        return productRepository.save( productEntityEntitie );
     }
 
-    public ProductEntity getById(String id, String from, String to) {
-        ProductEntity product = productRepository.findById(id)
-            .orElseThrow(() -> new NotFoundException("No product found"));
+    public ProductEntity getById( String id, String from, String to ) {
+        ProductEntity product = productRepository.findById( id )
+            .orElseThrow( () -> new NotFoundException( "No product found" ) );
 
-        product.setPrice( product.getPrice() * exchangeService.makeExchange(from, to) );
+        product.setPrice(  product.getPrice() * exchangeService.makeExchange( from, to )  );
         return product;
     }
 
-    public ProductEntity update(ProductRequestDTO product, String id) {
-        ProductEntity productEntity = product.toEntity(id);
-        if(productRepository.existsById(id)) {
-            return productRepository.save(productEntity);
+    public ProductEntity update( ProductRequestDTO product, String id ) {
+        ProductEntity productEntity = product.toEntity( id );
+        if( productRepository.existsById( id ) ) {
+            return productRepository.save( productEntity );
         } else {
-            throw new NotFoundException("Not found");
+            throw new NotFoundException( "Not found" );
         }
     }
 
-    public List<ProductEntity> getAll(String from,String to) {
-        Double value = exchangeService.makeExchange( from, to );
+    public List<ProductEntity> getAll( String from, String to ) {
+        Double value = exchangeService.makeExchange(  from, to  );
         return productRepository.findAll().stream()
-                .peek( p -> p.setPrice( p.getPrice() * value ) )
-                .collect(Collectors.toList());
+                .peek(  p -> p.setPrice(  p.getPrice() * value  )  )
+                .collect( Collectors.toList() );
     }
 
-    public void deleteMany(List<String> ids) {
-        if (ids.stream().anyMatch(Objects::isNull) || ids.isEmpty()) {
-            throw new NotFoundException("Blank list");
+    public void deleteMany( List<String> ids ) {
+        if ( ids.stream().anyMatch( Objects::isNull ) || ids.isEmpty() ) {
+            throw new NotFoundException( "Blank list" );
         }
-        productRepository.deleteAllById(ids);
+        productRepository.deleteAllById( ids );
     }
 }
