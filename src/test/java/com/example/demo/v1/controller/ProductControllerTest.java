@@ -9,10 +9,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
@@ -21,15 +19,15 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
 
+import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
-
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ActiveProfiles( "test" )
@@ -39,16 +37,12 @@ class ProductControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
-
     @MockBean
     private ProductService productService;
-
     @MockBean
     private CookieService cookieService;
-
     @Autowired
     private ProductRepository productRepository;
-
     @Autowired
     private ProductController productController;
 
@@ -89,7 +83,7 @@ class ProductControllerTest {
     @Test
     void productControllerTest_addInvalidProduct_trowExceptionAndReturnError() throws Exception {
                                                         //blank name and negative number
-        ProductRequestDTO productRequestDTO = new ProductRequestDTO("",-1.0);
+        ProductRequestDTO productRequestDTO = new ProductRequestDTO( "",-1.0 );
 
         ResultActions response = mockMvc.perform( post( "/product/add" )
                 .contentType( MediaType.APPLICATION_JSON )
@@ -112,11 +106,11 @@ class ProductControllerTest {
         response = mockMvc.perform( post( "/product/add" )
                 .contentType( MediaType.APPLICATION_JSON )
                 .content( new ObjectMapper().writeValueAsString( productRequestDTO ) )
-                .param( "currency", "BRL" ));
+                .param( "currency", "BRL" ) );
 
 
 
-        response.andExpect(status().isBadRequest());
+        response.andExpect( status().isBadRequest() );
 
         errors = new ObjectMapper().readValue( response.andReturn().getResponse().getContentAsString(),
                                                     InvalidInputValuesExceptionDTO.class ).getErrors();
@@ -133,24 +127,61 @@ class ProductControllerTest {
         ResultActions response = mockMvc.perform(get( "/product/"+product1.getProductID() )
                         .contentType(MediaType.APPLICATION_JSON)
                         .param("currency", "BRL" ))
-                .andExpect(status().isOk())
+                .andExpect( status().isOk() )
                 .andExpect( jsonPath( "$.name", CoreMatchers.is( product1.getName() ) ))
                 .andExpect( jsonPath( "$.price", CoreMatchers.is( product1.getPrice() ) ));
     }
-//
-//    @Test
-//    void getAll() {
-//    }
-//
-//    @Test
-//    void updateAll() {
-//    }
-//
-//    @Test
-//    void deleteById() {
-//    }
-//
-//    @Test
-//    void deleteMany() {
-//    }
+
+    @Test
+    void productControllerTest_getAllProducts_returnAllProducts() throws Exception {
+         when( productService.getAll( any(), any()) ).thenReturn( productRepository.findAll() );
+
+         ResultActions response = mockMvc.perform( get( "/product/All" )
+                 .contentType( MediaType.APPLICATION_JSON )
+                 .param( "currency", "BRL" ) );
+
+
+        response.andExpect(status().isOk())
+                .andExpect( jsonPath( "$[0].name", CoreMatchers.is( ( product1.getName() ) )))
+                .andExpect( jsonPath( "$[0].price", CoreMatchers.is( ( product1.getPrice() ) )))
+                .andExpect( jsonPath( "$[0].productID", CoreMatchers.is( ( product1.getProductID() ) )))
+                .andExpect( jsonPath( "$[1].productID", CoreMatchers.is( ( product2.getProductID() ) )))
+                .andExpect( jsonPath( "$[1].name", CoreMatchers.is( ( product2.getName() ) )))
+                .andExpect( jsonPath( "$[1].price", CoreMatchers.is( ( product2.getPrice() ) )));
+    }
+
+    @Test
+    void productControllerTest_getAllProductsWithBlankDB_returnBlankList() throws Exception {
+        when(productService.getAll( any(), any() ) ).thenReturn( new LinkedList<>() );
+
+        ResultActions response = mockMvc.perform( get( "/product/All" )
+                .contentType( MediaType.APPLICATION_JSON )
+                .param( "currency", "BRL" ) );
+
+
+        response.andExpect( status().isOk() )
+                .andExpect( jsonPath( "$.length()", CoreMatchers.is( ( 0 ) )));
+    }
+
+    @Test
+    void productControllerTest_DeleteManyById_returnOK() throws Exception {
+        doNothing().when( productService ).deleteMany( any() );
+
+        ResultActions response = mockMvc.perform( delete( "/product" )
+                .contentType( MediaType.APPLICATION_JSON )
+                .content( new ObjectMapper().writeValueAsString( List.of( product1.getProductID()
+                                                                        ,product2.getProductID() ) )));
+
+        response.andExpect( status().isOk() );
+        assertTrue( response.andReturn().getResponse().getContentAsString().isEmpty() );
+    }
+
+    @Test
+    void productControllerTest_DeleteById_returnOK() throws Exception {
+        doNothing().when( productService ).deleteMany( any() );
+
+        ResultActions response = mockMvc.perform( delete( "/product/"+product1.getProductID() ) );
+        response.andExpect( status().isOk() );
+        assertTrue( response.andReturn().getResponse().getContentAsString().isEmpty() );
+    }
 }

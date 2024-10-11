@@ -53,8 +53,8 @@ public class ProductController {
         return productService.getAll( "USD", currency );
     }
 
-    @PutMapping( "/updateProduct/{id}" )
-    public ProductEntity updateAll( @RequestBody @Valid ProductRequestDTO product, @PathVariable String id ) {
+    @PutMapping( "/{id}" )
+    public ProductEntity update( @RequestBody @Valid ProductRequestDTO product, @PathVariable String id ) {
         return productService.update( product, id );
     }
 

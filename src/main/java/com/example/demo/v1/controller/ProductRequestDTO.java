@@ -27,7 +27,15 @@ public class ProductRequestDTO {
 
     public ProductEntity toEntity( String id ) {
        return  ProductEntity.builder()
-                .productID( id != null ? id : UUID.randomUUID().toString() )
+                .productID( id )
+                .name( getName() )
+                .price( getPrice() )
+                .build();
+    }
+
+    public ProductEntity toEntity() {
+        return  ProductEntity.builder()
+                .productID( UUID.randomUUID().toString() )
                 .name( getName() )
                 .price( getPrice() )
                 .build();

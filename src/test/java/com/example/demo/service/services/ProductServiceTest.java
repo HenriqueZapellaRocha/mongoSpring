@@ -1,10 +1,10 @@
 package com.example.demo.service.services;
 
+import com.example.demo.exception.NotFoundException;
 import com.example.demo.repository.ProductRepository;
 import com.example.demo.repository.entity.ProductEntity;
 import com.example.demo.v1.controller.ProductRequestDTO;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -16,7 +16,7 @@ import java.util.UUID;
 
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest
@@ -37,11 +37,8 @@ class ProductServiceTest {
     }
 
     @Test
-    @DisplayName( "ProductService Add method test" )
-    void testProductServiceAdd() {
-        //creating productRequest
+    void productServiceTest_addProduct_ReturnTheEntityCreated() {
         ProductRequestDTO productRequestDTO = new ProductRequestDTO( "Clang", 200.0 );
-        //making a mock with mockito. We are testing just productService not the others.
         when( exchangeService.makeExchange( "BRL", "USD" ) ).thenReturn( 0.1824 );
 
         ProductEntity product = productService.add( productRequestDTO, "BRL", "USD" );
@@ -53,8 +50,7 @@ class ProductServiceTest {
     }
 
     @Test
-    @DisplayName( "get by ID test" )
-    void getByIdTest() {
+    void productServiceTest_getById_ReturnTheEntityById() {
        ProductEntity product = ProductEntity.builder()
                                                     .productID( UUID.randomUUID().toString() )
                                                     .name( "Clang" ).price( 200.0 )
@@ -73,8 +69,20 @@ class ProductServiceTest {
     }
 
     @Test
-    @DisplayName( "Update person" )
-    void updateTest() {
+    void productServiceTest_getById_ThrowsNotFoundException() {
+        ProductRequestDTO productRequestDTO = new ProductRequestDTO("he", 120.0);
+        String productId = "123";
+
+        NotFoundException exception = assertThrows(
+                NotFoundException.class,
+                () -> productService.getById( productId, "", "" )
+        );
+
+        assertEquals("No product found", exception.getMessage());
+    }
+
+    @Test
+    void productServiceTest_updateProduct_ReturnTheEntityUpdated() {
         ProductEntity product = ProductEntity.builder()
                                              .name( "Clang" )
                                              .productID( null )
@@ -90,8 +98,21 @@ class ProductServiceTest {
     }
 
     @Test
-    @DisplayName( "Get all products" )
-    void getAllTest() {
+    public void productServiceTest_UpdateProduct_ThrowNotFoundException() {
+        ProductRequestDTO productRequestDTO = new ProductRequestDTO("he", 120.0);
+        String productId = "123";
+
+        NotFoundException exception = assertThrows(
+                NotFoundException.class,
+                () -> productService.update(productRequestDTO, productId)
+        );
+
+
+        assertEquals("Not found", exception.getMessage());
+    }
+
+    @Test
+    void productServiceTest_GetAllProducts_ReturnAllProductsEntitiesInDb() {
         LinkedList<ProductEntity> products = new LinkedList<>();
         products.add( ProductEntity.builder()
                 .name( "Clang" )
@@ -119,8 +140,7 @@ class ProductServiceTest {
     }
 
     @Test
-    @DisplayName( "Delete many products" )
-    void deleteTest() {
+    void productServiceTest_deleteProducts_ReturnVoid() {
         LinkedList<ProductEntity> products = new LinkedList<>();
         products.add( ProductEntity.builder()
                 .name( "Clang" )
@@ -147,5 +167,18 @@ class ProductServiceTest {
        productService.deleteMany( productsToDelete );
 
        assertEquals( 0, productRepository.findAll().size() );
+    }
+
+    @Test
+    void productServiceTest_deleteProducts_ThrowExceptionBlankList() {
+        LinkedList<String> products = new LinkedList<>();
+
+        NotFoundException exception = assertThrows(
+                NotFoundException.class,
+                () -> productService.deleteMany( products )
+        );
+
+        assertEquals("Blank list", exception.getMessage());
+
     }
 }

@@ -24,13 +24,13 @@ public class ProductService {
     public ProductEntity add( ProductRequestDTO product, String from, String to ) {
         //Converting productRequest to productEntity ( DB version )
         product.setPrice(  product.getPrice() * exchangeService.makeExchange( from, to )  );
-        ProductEntity productEntityEntitie = product.toEntity( null );
+        ProductEntity productEntityEntitie = product.toEntity();
         return productRepository.save( productEntityEntitie );
     }
 
     public ProductEntity getById( String id, String from, String to ) {
         ProductEntity product = productRepository.findById( id )
-            .orElseThrow( () -> new NotFoundException( "No product found" ) );
+                                                 .orElseThrow( () -> new NotFoundException( "No product found" ) );
 
         product.setPrice(  product.getPrice() * exchangeService.makeExchange( from, to )  );
         return product;
@@ -53,7 +53,7 @@ public class ProductService {
     }
 
     public void deleteMany( List<String> ids ) {
-        if ( ids.stream().anyMatch( Objects::isNull ) || ids.isEmpty() ) {
+        if ( ids.isEmpty() ) {
             throw new NotFoundException( "Blank list" );
         }
         productRepository.deleteAllById( ids );
