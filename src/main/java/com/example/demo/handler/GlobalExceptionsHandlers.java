@@ -2,21 +2,23 @@ package com.example.demo.handler;
 
 
 import com.example.demo.dtos.CookieNotSetExceptionDTO;
+import com.example.demo.dtos.GlobalExceptionDTO;
 import com.example.demo.dtos.InvalidInputValuesExceptionDTO;
 import com.example.demo.dtos.NotFoundExceptionDTO;
 import com.example.demo.exception.CookieNotSetException;
 import com.example.demo.exception.NotFoundException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
-
+import io.swagger.v3.oas.annotations.Hidden;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
+@Hidden
 @RestControllerAdvice
 public class GlobalExceptionsHandlers {
 
@@ -34,12 +36,12 @@ public NotFoundExceptionDTO handler( final HttpClientErrorException e ) {
     try {
 
         String responseBody = e.getResponseBodyAsString();
-        
+
         ObjectMapper objectMapper = new ObjectMapper();
         JsonNode root = objectMapper.readTree( responseBody );
 
         String message = root.path( "message" ).asText();
-        
+
         return new NotFoundExceptionDTO( message );
     } catch ( Exception ex ) {
         return new NotFoundExceptionDTO( "Erro desconhecido" );
@@ -71,4 +73,9 @@ public NotFoundExceptionDTO handler( final HttpClientErrorException e ) {
         .map( FieldError::getDefaultMessage )
         .toList() );
         }
+
+    @ExceptionHandler(Exception.class)
+    public GlobalExceptionDTO handleGlobalException(Exception ex, WebRequest request) {
+        return new GlobalExceptionDTO( "An unknown error occurred. Please consult the support for resolution." );
+    }
 }

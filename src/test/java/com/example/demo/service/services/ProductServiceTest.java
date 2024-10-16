@@ -107,7 +107,6 @@ class ProductServiceTest {
                 () -> productService.update(productRequestDTO, productId)
         );
 
-
         assertEquals("Not found", exception.getMessage());
     }
 

@@ -5,8 +5,6 @@ import com.example.demo.repository.entity.ProductEntity;
 import java.util.List;
 import java.util.Optional;
 
-//TODO: Esta interface simula o que já faz o ProductRepository
-//TODO: para adicionar mais camadas de separação, pode se fazer uma facade
 public interface IProductrepository {
 
     ProductEntity addProduct(ProductEntity productEntity);

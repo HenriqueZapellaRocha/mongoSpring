@@ -6,6 +6,10 @@ import java.util.List;
 import com.example.demo.service.services.CookieService;
 
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -23,8 +27,21 @@ public class ProductController {
 
     private final ProductService productService;
 
-
-    @PostMapping( "/add" )
+    @Operation(
+            description = "Add new product in api",
+            responses = {
+                    @ApiResponse(
+                            description = "Sucess",
+                            responseCode = "200",
+                            content = @Content(
+                                    schema = @Schema(
+                                            implementation = ProductEntity.class
+                                    )
+                            )
+                    )
+            }
+    )
+    @PostMapping
     public ProductEntity add( @RequestBody @Valid ProductRequestDTO product,
                             @RequestParam( name = "currency" ) String currency ) {
         return productService.add( product,currency, "USD" );
