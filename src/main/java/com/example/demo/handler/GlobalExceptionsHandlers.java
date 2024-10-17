@@ -33,19 +33,8 @@ public class GlobalExceptionsHandlers {
 @ResponseBody
 @ExceptionHandler( HttpClientErrorException.class )
 public NotFoundExceptionDTO handler( final HttpClientErrorException e ) {
-    try {
 
-        String responseBody = e.getResponseBodyAsString();
-
-        ObjectMapper objectMapper = new ObjectMapper();
-        JsonNode root = objectMapper.readTree( responseBody );
-
-        String message = root.path( "message" ).asText();
-
-        return new NotFoundExceptionDTO( message );
-    } catch ( Exception ex ) {
-        return new NotFoundExceptionDTO( "Erro desconhecido" );
-    }
+        return new NotFoundExceptionDTO( "currency not found" );
 }
 
 
@@ -74,6 +63,7 @@ public NotFoundExceptionDTO handler( final HttpClientErrorException e ) {
         .toList() );
         }
 
+    @ResponseStatus( HttpStatus.BAD_REQUEST )
     @ExceptionHandler(Exception.class)
     public GlobalExceptionDTO handleGlobalException(Exception ex, WebRequest request) {
         return new GlobalExceptionDTO( "An unknown error occurred. Please consult the support for resolution." );
