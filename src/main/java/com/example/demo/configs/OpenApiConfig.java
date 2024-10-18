@@ -6,6 +6,7 @@ import io.swagger.v3.oas.models.info.License;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+
 @Configuration
 public class OpenApiConfig {
 
@@ -18,6 +19,4 @@ public class OpenApiConfig {
                 .version("1.0.0")
                 .title("Products API"));
     }
-
-
 }

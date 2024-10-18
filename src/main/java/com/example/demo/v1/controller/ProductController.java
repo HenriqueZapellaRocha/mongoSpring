@@ -8,9 +8,6 @@ import com.example.demo.dtos.InvalidInputValuesExceptionDTO;
 import com.example.demo.dtos.NotFoundExceptionDTO;
 import com.example.demo.service.services.CookieService;
 import org.springframework.web.bind.annotation.RequestBody;
-
-
-
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
@@ -127,10 +124,17 @@ public class ProductController {
                                     schema = @Schema(
                                             implementation = NotFoundExceptionDTO.class
                                     ),
-                                    examples = @ExampleObject(
-                                            name = "product id not found example",
-                                            value = "{\n"+"\"error\": "+"\"No product found\"\n}"
-                                    )
+                                    examples = {@ExampleObject(
+                                        name = "product id not found example",
+                                        value = "{\n" + "\"error\": " + "\"No product found\"\n}"
+                                    ),
+                                    @ExampleObject(
+                                        name = "Currency not found",
+                                        value = "{\n"+
+                                                " \"error\": \"currency not found\""+
+                                                "\n}"
+                                    )}
+
                             )
                     ),
             }
@@ -197,16 +201,16 @@ public class ProductController {
                                     examples = @ExampleObject(
                                             name = "All products response example",
                                             value = "[\n" +
-                                                    " {\n" +
-                                                    "  \"productID\": \"6ec58140-b159-4a5b-af91-3f976f8ebcb4\",\n" +
-                                                    "  \"name\": \"CLANG\",\n" +
-                                                    "  \"price\": \"100.0\",\n" +
-                                                    " }," +
-                                                    " \n{\n" +
-                                                    "  \"productID\": \"6ec58140-b159-4a5b-af91-3f976f8ebcb4\",\n" +
-                                                    "  \"name\": \"GCC\",\n" +
-                                                    "  \"price\": \"300.0\",\n" +
-                                                    " \n}" +
+                                                    "  {\n" +
+                                                    "    \"productID\": \"6ec58140-b159-4a5b-af91-3f976f8ebcb4\",\n" +
+                                                    "    \"name\": \"CLANG\",\n" +
+                                                    "    \"price\": 100.0\n" +
+                                                    "  }," +
+                                                    " \n  {\n" +
+                                                    "    \"productID\": \"6ec58140-b159-4a5b-af91-3f976f8ebcb4\",\n" +
+                                                    "    \"name\": \"GCC\",\n" +
+                                                    "    \"price\": 300.0\n" +
+                                                    "  }" +
                                                     "\n]"
                                     )
                             )
@@ -258,6 +262,15 @@ public class ProductController {
         return productService.update( product, id );
     }
 
+    @Operation(
+            description = "Delete a product in api by the id",
+            responses = {
+                    @ApiResponse(
+                            description = "Sucess",
+                            responseCode = "200"
+                    )
+            }
+    )
     @DeleteMapping( "/{id}" )
     public void deleteById( @PathVariable String id ) {
         final LinkedList<String> ids = new LinkedList<>();
@@ -265,6 +278,26 @@ public class ProductController {
         productService.deleteMany( ids );
     }
 
+    @Operation(
+            description = "Deletes many products by a list of ids",
+            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    content = @Content(
+                            schema = @Schema(
+                                    implementation = ProductEntity[].class
+                            ),
+                            examples = {
+                                    @ExampleObject(
+                                            name = "API request body example:",
+                                            value = "[\n" +
+                                                    "\"6ec58140-b159-4a5b-af91-3f976f8ebcb4\",\n" +
+                                                    "\"34efad68-cb0b-47d3-a204-a677532f0ecc\",\n" +
+                                                    "\"b7cc702c-97f5-419f-858e-17acf7f45d13\"\n" +
+                                                    "\n]"
+                                    )
+                            }
+                    )
+            )
+    )
     @DeleteMapping
     public void deleteMany( @RequestBody List<String> id ) {
         productService.deleteMany( id );
