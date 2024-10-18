@@ -118,22 +118,23 @@ public class ProductController {
                             )
                     ),
                     @ApiResponse(
-                            description = "Error",
+                            description = "When the currency is not found",
                             responseCode = "404",
                             content = @Content(
                                     schema = @Schema(
                                             implementation = NotFoundExceptionDTO.class
                                     ),
-                                    examples = {@ExampleObject(
+                                    examples = { @ExampleObject(
                                         name = "product id not found example",
                                         value = "{\n" + "\"error\": " + "\"No product found\"\n}"
                                     ),
-                                    @ExampleObject(
-                                        name = "Currency not found",
-                                        value = "{\n"+
-                                                " \"error\": \"currency not found\""+
-                                                "\n}"
-                                    )}
+                                            @ExampleObject(
+                                                    name = "Currency not found",
+                                                    value = "{\n"+
+                                                            " \"error\": \"currency not found\""+
+                                                            "\n}"
+                                            )
+                                    }
 
                             )
                     ),
@@ -173,11 +174,24 @@ public class ProductController {
                                             implementation = CookieNotSetExceptionDTO.class
                                     ),
                                     examples = @ExampleObject(
-                                            name = "product id not found example",
+                                            name = "When no cookie is set",
                                             value = "{\n"+"\"error\": "+"\"No cookie is set\" \n}"
                                     )
                             )
                     ),
+                    @ApiResponse(
+                            description = "Error",
+                            responseCode = "404",
+                            content = @Content(
+                                    schema = @Schema(
+                                            implementation = NotFoundExceptionDTO.class
+                                    ),
+                                    examples = { @ExampleObject(
+                                            name = "When the currency is not found",
+                                            value = "{\n\"error\": \"No product found\"\n}"
+                                    )}
+                            )
+                    )
             }
     )
     @GetMapping( "/last" )
@@ -213,6 +227,19 @@ public class ProductController {
                                                     "  }" +
                                                     "\n]"
                                     )
+                            )
+                    ),
+                    @ApiResponse(
+                            description = "Error",
+                            responseCode = "404",
+                            content = @Content(
+                                    schema = @Schema(
+                                            implementation = NotFoundExceptionDTO.class
+                                    ),
+                                    examples = { @ExampleObject(
+                                            name = "When the currency is not found",
+                                            value = "{\n\"error\": \"No product found\"\n}"
+                                    )}
                             )
                     )
             }
@@ -253,6 +280,19 @@ public class ProductController {
                                                             "}"
                                             )
                                     }
+                            )
+                    ),
+                    @ApiResponse(
+                            description = "Error",
+                            responseCode = "404",
+                            content = @Content(
+                                    schema = @Schema(
+                                            implementation = NotFoundExceptionDTO.class
+                                    ),
+                                    examples = { @ExampleObject(
+                                            name = "When the currency is not found",
+                                            value = "{\n\"error\": \"No product found\"\n}"
+                                    )}
                             )
                     )
             }
