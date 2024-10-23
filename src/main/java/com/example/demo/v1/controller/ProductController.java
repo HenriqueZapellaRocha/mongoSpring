@@ -45,7 +45,7 @@ public class ProductController {
             ),
             responses = {
                     @ApiResponse(
-                            description = "Success",
+                            description = "When the produt in the request body is correct and we can save this",
                             responseCode = "200",
                             content = @Content(
                                     schema = @Schema(implementation = ProductEntity.class),
@@ -62,7 +62,7 @@ public class ProductController {
                             )
                     ),
                     @ApiResponse(
-                            description = "When the request body is faulting things or invalid inputs",
+                            description = "When the request body is missing things or invalid inputs",
                             responseCode = "400",
                             content = @Content(
                                     schema = @Schema(implementation = InvalidInputValuesExceptionDTO.class),
@@ -100,10 +100,10 @@ public class ProductController {
     }
 
     @Operation(
-            description = "Add new product in api",
+            description = "Get any product from API using the ID",
             responses = {
                     @ApiResponse(
-                            description = "Success",
+                            description = "When the product exists and return the product",
                             responseCode = "200",
                             content = @Content(
                                     schema = @Schema(
@@ -118,7 +118,7 @@ public class ProductController {
                             )
                     ),
                     @ApiResponse(
-                            description = "When the currency is not found",
+                            description = "When the currency is not found or not found any product with the ID",
                             responseCode = "404",
                             content = @Content(
                                     schema = @Schema(
@@ -152,7 +152,7 @@ public class ProductController {
             description = "Get the last product consulted in get by id using cookie",
             responses = {
                     @ApiResponse(
-                            description = "Success",
+                            description = "When the cookie exists and the product in API. Return the product",
                             responseCode = "200",
                             content = @Content(
                                     schema = @Schema(
@@ -167,7 +167,7 @@ public class ProductController {
                             )
                     ),
                     @ApiResponse(
-                            description = "Error",
+                            description = "When no cookie is set",
                             responseCode = "400",
                             content = @Content(
                                     schema = @Schema(
@@ -180,7 +180,7 @@ public class ProductController {
                             )
                     ),
                     @ApiResponse(
-                            description = "Error",
+                            description = "When the currency informed is not found",
                             responseCode = "404",
                             content = @Content(
                                     schema = @Schema(
@@ -230,7 +230,7 @@ public class ProductController {
                             )
                     ),
                     @ApiResponse(
-                            description = "Error",
+                            description = "When the currency informed is not found",
                             responseCode = "404",
                             content = @Content(
                                     schema = @Schema(
@@ -238,7 +238,7 @@ public class ProductController {
                                     ),
                                     examples = { @ExampleObject(
                                             name = "When the currency is not found",
-                                            value = "{\n\"error\": \"No product found\"\n}"
+                                            value = "{\n\"error\": \"currency not found\"\n}"
                                     )}
                             )
                     )
@@ -252,7 +252,7 @@ public class ProductController {
     }
 
     @Operation(
-            description = "Add new product in api",
+            description = "Update all informations of a product",
             requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
                     content = @Content(
                             schema = @Schema(implementation = ProductRequestDTO.class),
@@ -266,7 +266,7 @@ public class ProductController {
             ),
             responses = {
                     @ApiResponse(
-                            description = "Success",
+                            description = "Return the product updated",
                             responseCode = "200",
                             content = @Content(
                                     schema = @Schema(implementation = ProductEntity.class),
@@ -283,7 +283,29 @@ public class ProductController {
                             )
                     ),
                     @ApiResponse(
-                            description = "Error",
+                            description = "When the product informed by ID is not found " +
+                                    "or invalid inputs in request body",
+                            responseCode = "400",
+                            content = @Content(
+                                    schema = @Schema(
+                                            implementation = NotFoundExceptionDTO.class
+                                    ),
+                                    examples = { @ExampleObject(
+                                            name = "When the product not found",
+                                            value = "{\n\"error\": \"Not found\"\n}"
+                                    ),   @ExampleObject(
+                                            name = "Input not valid",
+                                            value = "{\n" +
+                                                    "\"errors\": "+"[\n"+
+                                                    "\"price: blank price\","+
+                                                    "\"name: blank name\"\n]"+
+                                                    "}"
+                                    )
+                                    }
+                            )
+                    ),
+                    @ApiResponse(
+                            description = "When the currency informed is not found",
                             responseCode = "404",
                             content = @Content(
                                     schema = @Schema(
@@ -291,7 +313,7 @@ public class ProductController {
                                     ),
                                     examples = { @ExampleObject(
                                             name = "When the currency is not found",
-                                            value = "{\n\"error\": \"No product found\"\n}"
+                                            value = "{\n\"error\": \"currency not found\"\n}"
                                     )}
                             )
                     )
