@@ -2,6 +2,7 @@ package com.example.demo.integration.exchange;
 
 
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import java.util.Map;
@@ -9,9 +10,10 @@ import java.util.Objects;
 
 
 @Service
+@RequiredArgsConstructor
 public class ExchangeIntegration {
 
-    RestTemplate querry = new RestTemplate();
+    private final RestTemplate restTemplate;
 
     public Double makeExchange( String from, String to ) {
 
@@ -19,9 +21,10 @@ public class ExchangeIntegration {
             return 1.0;
 
 
-        Map<String, ExchangeResponse> result = querry.getForObject(
-                "https://economia.awesomeapi.com.br/json/last/" + from + "-" + to
-                , Map.class);
+        Map<String, ExchangeResponse> result = restTemplate.getForObject(
+                "/last/" + from + "-" + to, // Base URL is handled in configuration
+                Map.class
+        );
 
         return Double.parseDouble( Objects.requireNonNull(result).get(from+to).bid() );
     }
