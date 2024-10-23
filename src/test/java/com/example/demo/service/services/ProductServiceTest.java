@@ -1,6 +1,7 @@
 package com.example.demo.service.services;
 
 import com.example.demo.exception.NotFoundException;
+import com.example.demo.integration.exchange.ExchangeIntegration;
 import com.example.demo.repository.ProductRepository;
 import com.example.demo.repository.entity.ProductEntity;
 import com.example.demo.v1.controller.ProductRequestDTO;
@@ -24,7 +25,7 @@ import static org.mockito.Mockito.when;
 class ProductServiceTest {
 
     @MockBean
-    private ExchangeService exchangeService;
+    private ExchangeIntegration exchangeIntegration;
     @Autowired
     private ProductService productService;
     @Autowired
@@ -39,7 +40,7 @@ class ProductServiceTest {
     @Test
     void productServiceTest_addProduct_ReturnTheEntityCreated() {
         ProductRequestDTO productRequestDTO = new ProductRequestDTO( "Clang", 200.0 );
-        when( exchangeService.makeExchange( "BRL", "USD" ) ).thenReturn( 0.1824 );
+        when( exchangeIntegration.makeExchange( "BRL", "USD" ) ).thenReturn( 0.1824 );
 
         ProductEntity product = productService.add( productRequestDTO, "BRL", "USD" );
         assertNotNull( product );
@@ -56,7 +57,7 @@ class ProductServiceTest {
                                                     .name( "Clang" ).price( 200.0 )
                                                     .build();
 
-       when( exchangeService.makeExchange( "USD", "BRL" ) ).thenReturn( 5.44 );
+       when( exchangeIntegration.makeExchange( "USD", "BRL" ) ).thenReturn( 5.44 );
 
        productRepository.save( product );
        ProductEntity productRecived = productService.getById( product.getProductID(), "USD", "BRL" );
@@ -131,7 +132,7 @@ class ProductServiceTest {
 
         productRepository.saveAll( products );
 
-        when( exchangeService.makeExchange( any(), any() ) ).thenReturn( 5.44 );
+        when( exchangeIntegration.makeExchange( any(), any() ) ).thenReturn( 5.44 );
 
         List<ProductEntity> list = productService.getAll( "USD", "BRL" );
         assertNotNull( list );

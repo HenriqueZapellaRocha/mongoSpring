@@ -2,10 +2,10 @@ package com.example.demo.service.services;
 
 
 import com.example.demo.exception.NotFoundException;
+import com.example.demo.integration.exchange.ExchangeIntegration;
 import com.example.demo.repository.entity.ProductEntity;
 import com.example.demo.repository.ProductRepository;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 import com.example.demo.v1.controller.ProductRequestDTO;
@@ -19,11 +19,11 @@ import org.springframework.stereotype.Service;
 public class ProductService {
 
     private final ProductRepository productRepository;
-    private final ExchangeService exchangeService;
+    private final ExchangeIntegration exchangeIntegration;
 
     public ProductEntity add( ProductRequestDTO product, String from, String to ) {
         //Converting productRequest to productEntity ( DB version )
-        product.setPrice(  product.getPrice() * exchangeService.makeExchange( from, to )  );
+        product.setPrice(  product.getPrice() * exchangeIntegration.makeExchange( from, to )  );
         ProductEntity productEntityEntitie = product.toEntity();
         return productRepository.save( productEntityEntitie );
     }
@@ -32,7 +32,7 @@ public class ProductService {
         ProductEntity product = productRepository.findById( id )
                                                  .orElseThrow( () -> new NotFoundException( "No product found" ) );
 
-        product.setPrice(  product.getPrice() * exchangeService.makeExchange( from, to )  );
+        product.setPrice(  product.getPrice() * exchangeIntegration.makeExchange( from, to )  );
         return product;
     }
 
@@ -46,7 +46,7 @@ public class ProductService {
     }
 
     public List<ProductEntity> getAll( String from, String to ) {
-        Double value = exchangeService.makeExchange(  from, to  );
+        Double value = exchangeIntegration.makeExchange(  from, to  );
         return productRepository.findAll().stream()
                 .peek(  p -> p.setPrice(  p.getPrice() * value  )  )
                 .collect( Collectors.toList() );

@@ -1,6 +1,7 @@
 package com.example.demo.service.services;
 
 
+import com.example.demo.integration.exchange.ExchangeIntegration;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -21,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class ExchangeServiceTest {
 
     @Autowired
-    private ExchangeService exchangeService;
+    private ExchangeIntegration exchangeIntegration;
 
     @Test
     void exchageServiceTest_MakeExchange_ReturnCorrectExchange() {
@@ -39,7 +40,7 @@ class ExchangeServiceTest {
         Map<String, String> Json = Objects.requireNonNull( result ).get( from.toUpperCase() + to.toUpperCase() );
 
         Double exchange1 = Double.parseDouble( Json.get( "bid" ) );
-        Double exchange2 = exchangeService.makeExchange(from, to);
+        Double exchange2 = exchangeIntegration.makeExchange(from, to);
         Double test = exchange1 - exchange2;
 
         assertTrue(test < epsiolon);
@@ -52,7 +53,7 @@ class ExchangeServiceTest {
 
         assertThrows(
                 HttpClientErrorException.class,
-                () -> exchangeService.makeExchange( from, to )
+                () -> exchangeIntegration.makeExchange( from, to )
         );
 
         String from2 = "ZZZ";
@@ -60,7 +61,7 @@ class ExchangeServiceTest {
 
         assertThrows(
                 HttpClientErrorException.class,
-                () -> exchangeService.makeExchange( from2, to2 )
+                () -> exchangeIntegration.makeExchange( from2, to2 )
         );
     }
 
