@@ -18,12 +18,7 @@ public class RestTemplateConfig {
     @Bean
     public RestTemplate restTemplate() {
         RestTemplate restTemplate = new RestTemplate();
-        restTemplate.setUriTemplateHandler(new DefaultUriBuilderFactory(baseUrl));
-
-        restTemplate.getInterceptors().add((request, body, execution) -> {
-            request.getHeaders().add("Authorization", "Bearer " + apiKey);
-            return execution.execute(request, body);
-        });
+        restTemplate.setUriTemplateHandler(new DefaultUriBuilderFactory(baseUrl+apiKey));
 
         return restTemplate;
     }

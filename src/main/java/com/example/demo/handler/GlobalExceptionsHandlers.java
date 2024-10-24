@@ -7,8 +7,6 @@ import com.example.demo.dtos.InvalidInputValuesExceptionDTO;
 import com.example.demo.dtos.NotFoundExceptionDTO;
 import com.example.demo.exception.CookieNotSetException;
 import com.example.demo.exception.NotFoundException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.Hidden;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.FieldError;
@@ -29,13 +27,13 @@ public class GlobalExceptionsHandlers {
         return new NotFoundExceptionDTO( e.getMessage() );
     }
 
-@ResponseStatus( HttpStatus.NOT_FOUND )
-@ResponseBody
-@ExceptionHandler( HttpClientErrorException.class )
-public NotFoundExceptionDTO handler( final HttpClientErrorException e ) {
+    @ResponseStatus( HttpStatus.NOT_FOUND )
+    @ResponseBody
+    @ExceptionHandler( HttpClientErrorException.class )
+    public NotFoundExceptionDTO handler( final HttpClientErrorException e ) {
 
         return new NotFoundExceptionDTO( "currency not found" );
-}
+    }
 
 
     @ResponseStatus( HttpStatus.BAD_REQUEST )

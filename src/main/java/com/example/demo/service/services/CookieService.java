@@ -4,6 +4,7 @@ import com.example.demo.exception.NotFoundException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import com.example.demo.exception.CookieNotSetException;
@@ -12,6 +13,7 @@ import java.util.Arrays;
 import java.util.Optional;
 
 @Service
+@Component
 public class CookieService {
 
     public static void setCookie(HttpServletResponse response, String name, String value) {

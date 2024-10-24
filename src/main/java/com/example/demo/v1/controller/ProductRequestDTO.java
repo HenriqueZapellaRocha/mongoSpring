@@ -1,43 +1,40 @@
 package com.example.demo.v1.controller;
 
-
 import com.example.demo.repository.entity.ProductEntity;
-
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.util.UUID;
 
-@Data
-@AllArgsConstructor
 @Builder
-public class ProductRequestDTO {
+public record ProductRequestDTO(
+        @Schema(description = "Name of the product", example = "CLANG")
+        @NotBlank(message = "name: blank name")
+        String name,
 
-   @NotBlank( message = "name: blank name" )
-   private String name;
-   @NotNull( message = "price: blank price" )
-   @Min( value = 0, message = "price: negative number" )
-   private Double price;
+        @Schema(description = "Price of the product", example = "200.0")
+        @NotNull(message = "price: blank price")
+        @Min(value = 0, message = "price: negative number")
+        BigDecimal price
+) {
 
-
-    public ProductEntity toEntity( String id ) {
-       return  ProductEntity.builder()
-                .productID( id )
-                .name( getName() )
-                .price( getPrice() )
+    public ProductEntity toEntity(String id) {
+        return ProductEntity.builder()
+                .productID(id)
+                .name(this.name)
+                .price(this.price)
                 .build();
     }
 
     public ProductEntity toEntity() {
-        return  ProductEntity.builder()
-                .productID( UUID.randomUUID().toString() )
-                .name( getName() )
-                .price( getPrice() )
+        return ProductEntity.builder()
+                .productID(UUID.randomUUID().toString())
+                .name(this.name)
+                .price(this.price)
                 .build();
     }
 }

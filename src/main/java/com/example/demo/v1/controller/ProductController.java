@@ -32,23 +32,10 @@ public class ProductController {
 
     @Operation(
             description = "Add new product in api",
-            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
-                    content = @Content(
-                            schema = @Schema(implementation = ProductRequestDTO.class),
-                            examples = {
-                                    @ExampleObject(
-                                            name = "Product JSON request example",
-                                            value = "{\"name\": \"CLANG\", \"price\": 200.0}"
-                                    )
-                            }
-                    )
-            ),
-            responses = {
-                    @ApiResponse(
-                            description = "When the produt in the request body is correct and we can save this",
+            responses = {@ApiResponse(
+                            description = "When the product in the request body is correct and we can save this",
                             responseCode = "200",
                             content = @Content(
-                                    schema = @Schema(implementation = ProductEntity.class),
                                     examples = {
                                             @ExampleObject(
                                                     name = "product response example",
@@ -60,12 +47,10 @@ public class ProductController {
                                             )
                                     }
                             )
-                    ),
-                    @ApiResponse(
+                    ), @ApiResponse(
                             description = "When the request body is missing things or invalid inputs",
                             responseCode = "400",
                             content = @Content(
-                                    schema = @Schema(implementation = InvalidInputValuesExceptionDTO.class),
                                     examples = {
                                             @ExampleObject(
                                                     value = "{\n" +
@@ -76,12 +61,10 @@ public class ProductController {
                                             )
                                     }
                             )
-                    ),
-                    @ApiResponse(
+                    ), @ApiResponse(
                             description = "When the currency informed is not found",
                             responseCode = "404",
                             content = @Content(
-                                    schema = @Schema(implementation = NotFoundExceptionDTO.class),
                                     examples = {
                                             @ExampleObject(
                                                     value = "{\n"+
@@ -94,7 +77,7 @@ public class ProductController {
             }
     )
     @PostMapping("/add")
-    public ProductEntity add( @RequestBody @Valid ProductRequestDTO product,
+    public ProductResponseDTO add( @RequestBody @Valid ProductRequestDTO product,
                             @RequestParam( name = "currency" ) String currency ) {
         return productService.add( product,currency, "USD" );
     }
@@ -141,12 +124,12 @@ public class ProductController {
             }
     )
     @GetMapping( "/{id}" )
-    public ProductEntity getById( @PathVariable String id, HttpServletResponse response, 
+    public ProductResponseDTO getById( @PathVariable String id, HttpServletResponse response,
                                         @RequestParam( name = "currency" ) String currency ) {
 
-        final ProductEntity productEntity = productService.getById( id,"USD", currency );
+        ProductResponseDTO product = productService.getById( id,"USD", currency );
         CookieService.setCookie( response, "last", id );
-        return productEntity;
+        return product;
     }
     @Operation(
             description = "Get the last product consulted in get by id using cookie",
@@ -195,7 +178,7 @@ public class ProductController {
             }
     )
     @GetMapping( "/last" )
-    public ProductEntity getLast( HttpServletRequest request,
+    public ProductResponseDTO getLast( HttpServletRequest request,
                                  @RequestParam( name = "currency" ) String currency ) {
         final Cookie cookie = CookieService.getCookie( request, "last" );
 
@@ -246,24 +229,13 @@ public class ProductController {
 
     )
     @GetMapping( "/All" )
-    public List<ProductEntity> getAll( HttpServletRequest request,
+    public List<ProductResponseDTO> getAll( HttpServletRequest request,
                     @RequestParam( name = "currency" ) String currency ) {
         return productService.getAll( "USD", currency );
     }
 
     @Operation(
             description = "Update all informations of a product",
-            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
-                    content = @Content(
-                            schema = @Schema(implementation = ProductRequestDTO.class),
-                            examples = {
-                                    @ExampleObject(
-                                            name = "Product JSON request example",
-                                            value = "{\"name\": \"CLANG\", \"price\": 200.0}"
-                                    )
-                            }
-                    )
-            ),
             responses = {
                     @ApiResponse(
                             description = "Return the product updated",
@@ -320,7 +292,7 @@ public class ProductController {
             }
     )
     @PutMapping( "/{id}" )
-    public ProductEntity update( @RequestBody @Valid ProductRequestDTO product, @PathVariable String id ) {
+    public ProductResponseDTO update( @RequestBody @Valid ProductRequestDTO product, @PathVariable String id ) {
         return productService.update( product, id );
     }
 
