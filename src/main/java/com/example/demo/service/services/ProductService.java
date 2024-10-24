@@ -24,19 +24,19 @@ public class ProductService {
 
     public ProductResponseDTO add( ProductRequestDTO product, String from, String to ) {
         //Converting productRequest to productEntity ( DB version )
-        ProductEntity productEntityEntitie = product.toEntity();
-        productEntityEntitie.setPrice( BigDecimal.valueOf(
-                product.price().doubleValue() * exchangeIntegration.makeExchange( from, to ) )  );
+        ProductEntity productEntity = product.toEntity();
+        productEntity.setPrice(
+                product.price().multiply(BigDecimal.valueOf( exchangeIntegration.makeExchange( from, to ) ) ));
 
-        return ProductResponseDTO.entityToResponse( productRepository.save( productEntityEntitie ), "USD" );
+        return ProductResponseDTO.entityToResponse( productRepository.save( productEntity ), to );
     }
 
     public ProductResponseDTO getById( String id, String from, String to ) {
         ProductEntity product = productRepository.findById( id )
                                                  .orElseThrow( () -> new NotFoundException( "No product found" ) );
 
-        product.setPrice(BigDecimal.valueOf(
-                product.getPrice().doubleValue() * exchangeIntegration.makeExchange( from, to ) ) );
+        product.setPrice(
+                product.getPrice().multiply( BigDecimal.valueOf( exchangeIntegration.makeExchange( from, to ) ) ));
         return ProductResponseDTO.entityToResponse(product, to);
     }
 
