@@ -17,6 +17,9 @@ import lombok.Setter;
 @NoArgsConstructor
 public class InvalidInputValuesExceptionDTO {
 
+    @Schema(description = "message errors list",
+            example = "[\"Blank name\", " +
+                    "\"Negative number\"]")
     private List<String> errors;
 
 

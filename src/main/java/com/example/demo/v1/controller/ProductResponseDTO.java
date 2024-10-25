@@ -4,15 +4,14 @@ package com.example.demo.v1.controller;
 import com.example.demo.repository.entity.ProductEntity;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
-
 import java.math.BigDecimal;
 
 
 @Builder
 public record ProductResponseDTO(
-        @Schema(description = "Product id", example = "6ec58140-b159-4a5b-af91-3f976f8ebcb4")
+        @Schema( description = "Product id", example = "6ec58140-b159-4a5b-af91-3f976f8ebcb4" )
         String productID,
-        @Schema(description = "Product name", example = "JVM")
+        @Schema( description = "Product name", example = "JVM" )
         String name,
 
         PriceResponse price  ) {
