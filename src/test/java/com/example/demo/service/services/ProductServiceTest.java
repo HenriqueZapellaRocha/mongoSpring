@@ -9,6 +9,7 @@ import com.example.demo.v1.controller.ProductRequestDTO;
 import com.example.demo.v1.controller.ProductResponseDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -40,6 +41,7 @@ class ProductServiceTest {
     @BeforeEach
     void setUp() {
         productRepository.deleteAll();
+        MockitoAnnotations.openMocks(this);
     }
 
     @Test

@@ -21,6 +21,6 @@ public class ExchangeIntegration {
                 ExchangeResponse.class
         );
 
-        return Objects.requireNonNull(result).conversion_rate();
+        return Objects.requireNonNull( result ).conversion_rate();
     }
 }

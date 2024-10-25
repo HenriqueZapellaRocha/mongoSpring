@@ -2,52 +2,65 @@ package com.example.demo.service.services;
 
 
 import com.example.demo.integration.exchange.ExchangeIntegration;
+import com.example.demo.integration.exchange.ExchangeResponse;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.Map;
-import java.util.Objects;
 
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.when;
 
 
 @SpringBootTest
 @ActiveProfiles( "test" )
-class ExchangeServiceTest {
+class ExchangeIntegrationTest {
+
+
+    @Mock
+    private RestTemplate restTemplate;
 
     @Autowired
     private ExchangeIntegration exchangeIntegration;
 
+    @Value("${api.base.url}")
+    String baseUrl;
+
+    @Value("${api.key}")
+    String exchangeId;
+
+    @BeforeEach
+    void setUp() {
+        MockitoAnnotations.openMocks(this);
+    }
+
     @Test
     void exchageServiceTest_MakeExchange_ReturnCorrectExchange() {
-        String from = "USD";
-        String to = "EUR";
-        RestTemplate querry = new RestTemplate();
 
-        @SuppressWarnings( "unchecked" )
-        Map<String, Map<String, String>> result = querry.getForObject(
-                "https://economia.awesomeapi.com.br/json/last/" + from + "-" + to
-                , Map.class );
+        ExchangeResponse response = new ExchangeResponse( 5.44 );
 
-        Double epsiolon = 1e-3;
-        
-        Map<String, String> Json = Objects.requireNonNull( result ).get( from.toUpperCase() + to.toUpperCase() );
+        when( restTemplate.getForObject( anyString(), any() ) )
+                .thenReturn( response );
 
-        Double exchange1 = Double.parseDouble( Json.get( "bid" ) );
-        Double exchange2 = exchangeIntegration.makeExchange(from, to);
-        Double test = exchange1 - exchange2;
+        Double exchangeValue = exchangeIntegration.makeExchange("USD", "BRL");
 
-        assertTrue(test < epsiolon);
+        assertEquals(5.44, response.conversion_rate());
     }
 
     @Test
     void exchageServiceTest_MakeExchange_ReturnError() {
+
         String from = "USD";
         String to = "ZZZ";
 

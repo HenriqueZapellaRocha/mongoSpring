@@ -9,16 +9,16 @@ import org.springframework.web.util.DefaultUriBuilderFactory;
 @Configuration
 public class RestTemplateConfig {
 
-    @Value("${api.base.url}")
+    @Value( "${api.base.url}" )
     private String baseUrl;
 
-    @Value("${api.key}")
+    @Value( "${api.key}" )
     private String apiKey;
 
     @Bean
     public RestTemplate restTemplate() {
         RestTemplate restTemplate = new RestTemplate();
-        restTemplate.setUriTemplateHandler(new DefaultUriBuilderFactory(baseUrl+apiKey));
+        restTemplate.setUriTemplateHandler( new DefaultUriBuilderFactory( baseUrl+apiKey ) );
 
         return restTemplate;
     }

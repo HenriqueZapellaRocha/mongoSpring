@@ -12,29 +12,29 @@ import java.util.UUID;
 
 @Builder
 public record ProductRequestDTO(
-        @Schema(description = "Name of the product", example = "CLANG")
-        @NotBlank(message = "name: blank name")
+        @Schema( description = "Name of the product", example = "JVM" )
+        @NotBlank( message = "name: blank name" )
         String name,
 
-        @Schema(description = "Price of the product", example = "200.0")
-        @NotNull(message = "price: blank price")
-        @Min(value = 0, message = "price: negative number")
+        @Schema( description = "Price of the product", example = "200.50" )
+        @NotNull( message = "price: blank price" )
+        @Min( value = 0, message = "price: negative number" )
         BigDecimal price
 ) {
 
-    public ProductEntity toEntity(String id) {
+    public ProductEntity toEntity( String id ) {
         return ProductEntity.builder()
-                .productID(id)
-                .name(this.name)
-                .price(this.price)
+                .productID( id )
+                .name( this.name )
+                .price( this.price )
                 .build();
     }
 
     public ProductEntity toEntity() {
         return ProductEntity.builder()
-                .productID(UUID.randomUUID().toString())
-                .name(this.name)
-                .price(this.price)
+                .productID( UUID.randomUUID().toString() )
+                .name( this.name )
+                .price( this.price )
                 .build();
     }
 }

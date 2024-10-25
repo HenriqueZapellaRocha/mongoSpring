@@ -7,9 +7,11 @@ import com.example.demo.repository.entity.ProductEntity;
 import com.example.demo.service.services.CookieService;
 import com.example.demo.service.services.ProductService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.http.Cookie;
 import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -24,8 +26,6 @@ import java.math.BigDecimal;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
-
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -65,6 +65,7 @@ class ProductControllerTest {
         productRepository.deleteAll();
         productRepository.save(product1);
         productRepository.save(product2);
+        MockitoAnnotations.openMocks(this);
     }
 
     @Test
@@ -225,6 +226,35 @@ class ProductControllerTest {
 
         response.andExpect( status().isOk() )
                 .andExpect( jsonPath( "$.length()", CoreMatchers.is( ( 0 ) )));
+    }
+
+    @Test
+    void productControllerTest_getLast_returnTheLastProductInCookie() throws Exception {
+
+        when( productService.getById(any(), any(), any()) )
+                .thenReturn(ProductResponseDTO.entityToResponse(product1, "BRL"));
+
+       mockMvc.perform(get("/product/last")
+                .param( "currency", "BRL" )
+                        .cookie(new Cookie("last", product1.getProductID()))
+                .contentType( MediaType.APPLICATION_JSON ) )
+                .andExpect( status().isOk() )
+                .andExpect( jsonPath("$.name", CoreMatchers.is(product1.getName())))
+                .andExpect( jsonPath("$.price.value", CoreMatchers.is(product1.getPrice().doubleValue())));
+
+    }
+
+    @Test
+    void productControllerTest_getLast_returnErrorCookieNotSet() throws Exception {
+
+        when( productService.getById(any(), any(), any()) )
+                .thenReturn(ProductResponseDTO.entityToResponse(product1, "BRL"));
+
+        mockMvc.perform(get("/product/last")
+                        .param( "currency", "BRL" )
+                        .contentType( MediaType.APPLICATION_JSON ) )
+                .andExpect(status().isBadRequest())
+                .andExpect( jsonPath("$.error", CoreMatchers.is( "No cookie is set" )));
     }
 
     @Test

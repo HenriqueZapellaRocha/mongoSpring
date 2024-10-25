@@ -2,16 +2,23 @@ package com.example.demo.v1.controller;
 
 
 import com.example.demo.repository.entity.ProductEntity;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 
 import java.math.BigDecimal;
 
 
 @Builder
-public record ProductResponseDTO( String productID, String name, PriceResponse price  ) {
+public record ProductResponseDTO(
+        @Schema(description = "Product id", example = "6ec58140-b159-4a5b-af91-3f976f8ebcb4")
+        String productID,
+        @Schema(description = "Product name", example = "JVM")
+        String name,
+
+        PriceResponse price  ) {
 
 
-    public static ProductResponseDTO entityToResponse(ProductEntity productEntity, String currency) {
+    public static ProductResponseDTO entityToResponse( ProductEntity productEntity, String currency ) {
 
         return  ProductResponseDTO.builder().productID( productEntity.getProductID() )
                                             .name( productEntity.getName() )
@@ -20,5 +27,9 @@ public record ProductResponseDTO( String productID, String name, PriceResponse p
 
     }
 
-    public record PriceResponse( String currency, BigDecimal value ) {}
+    public record PriceResponse(
+            @Schema( description = "The currency used in the price", example = "USD" )
+            String currency,
+            @Schema( description = "The product value", example = "200.50" )
+            BigDecimal value ) {}
 }
