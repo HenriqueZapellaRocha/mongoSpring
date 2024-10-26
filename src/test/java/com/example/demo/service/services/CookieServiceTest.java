@@ -23,7 +23,6 @@ public class CookieServiceTest {
     @Mock
     private HttpServletRequest request;
 
-
     @Test
     public void CookieService_SetCookie_VoidWithCookieAddedInResponse() {
         String name = "testCookie";

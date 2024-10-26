@@ -13,7 +13,6 @@ import java.math.BigDecimal;
 
 @Document( collection = "products" )
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
 @Builder
 public class ProductEntity {
