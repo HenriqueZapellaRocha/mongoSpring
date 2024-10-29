@@ -15,6 +15,7 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Hidden
 public class InvalidInputValuesExceptionDTO {
 
     @Schema(description = "message errors list",

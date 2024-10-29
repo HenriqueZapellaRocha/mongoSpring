@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import com.example.demo.v1.controller.ProductRequestDTO;
 import com.example.demo.v1.controller.ProductResponseDTO;
+import io.swagger.v3.oas.annotations.Hidden;
 import lombok.RequiredArgsConstructor;
 
 
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Service;
 
 @RequiredArgsConstructor
 @Service
+@Hidden
 public class ProductService {
 
     private final ProductRepository productRepository;
