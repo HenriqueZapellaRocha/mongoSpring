@@ -40,10 +40,10 @@ public class CookieServiceTest {
 
     @Test
     public void testGetCookie_CookieFound() {
+
         String name = "testCookie";
         Cookie expectedCookie = new Cookie( name, "testValue" );
         Cookie[] cookies = { expectedCookie };
-
         when( request.getCookies() ).thenReturn( cookies );
 
         Cookie actualCookie = CookieService.getCookie( request, name );

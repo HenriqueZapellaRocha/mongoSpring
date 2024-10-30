@@ -47,31 +47,30 @@ class ExchangeIntegrationTest {
 
     @Test
     void exchageServiceTest_MakeExchange_ReturnCorrectExchange() {
-
+        //when
         ExchangeResponse response = new ExchangeResponse( 5.44 );
-
         when( restTemplate.getForObject( anyString(), any() ) )
                 .thenReturn( response );
-
+        //perform
         Double exchangeValue = exchangeIntegration.makeExchange("USD", "BRL");
-
+        //expect
         assertEquals(5.44, response.conversion_rate());
     }
 
     @Test
     void exchageServiceTest_MakeExchange_ReturnError() {
-
+        //when
         String from = "USD";
         String to = "ZZZ";
-
+        //perform //expect
         assertThrows(
                 HttpClientErrorException.class,
                 () -> exchangeIntegration.makeExchange( from, to )
         );
-
+        //when
         String from2 = "ZZZ";
         String to2 = "USD";
-
+        //perform //expect
         assertThrows(
                 HttpClientErrorException.class,
                 () -> exchangeIntegration.makeExchange( from2, to2 )

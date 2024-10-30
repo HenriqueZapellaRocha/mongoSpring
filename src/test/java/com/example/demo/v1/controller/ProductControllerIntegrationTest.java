@@ -39,20 +39,13 @@ class ProductControllerIntegrationTest {
     @Autowired
     private MockMvc mockMvc;
     @Autowired
-    private ProductService productService;
-    @Autowired
     private ProductRepository productRepository;
-    @MockBean
-    private CookieService cookieService;
     @Autowired
     private ProductController productController;
 
     private ProductRequestDTO productRequest;
     private ProductRequestDTO productRequest2;
-    private ProductEntity product1;
-    private ProductEntity product2;
-    ProductResponseDTO productResponse1;
-    ProductResponseDTO productResponse2;
+
 
     @BeforeEach
     public void setup() {
@@ -60,23 +53,6 @@ class ProductControllerIntegrationTest {
                 .name( "JVM" )
                 .price( new BigDecimal( "350.50" ) )
                 .build();
-
-        productResponse1 = ProductResponseDTO.builder()
-                .productID("123")
-                .price(ProductResponseDTO.PriceResponse.builder()
-                        .currency("USD")
-                        .value(new BigDecimal("200.00"))
-                        .build()).name("JVM")
-                .build();
-
-        productResponse2 = ProductResponseDTO.builder()
-                .productID("321")
-                .price(ProductResponseDTO.PriceResponse.builder()
-                        .currency("USD")
-                        .value(new BigDecimal("5500.00"))
-                        .build()).name("WHITEMANE")
-                .build();
-        productRepository.deleteAll();
     }
 
     @Test
