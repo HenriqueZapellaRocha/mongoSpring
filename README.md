@@ -45,7 +45,7 @@ To run the API, simply enter the following command in your terminal:
 ---
 # Documentation 
 
-** The API is documented using Swagger. 
+**  The API is documented using Swagger. 
 You can view the documentation by running the 
 project and navigating to the following 
 link: http://localhost:8080/swagger-ui/index.html#/ **
