@@ -21,6 +21,7 @@ Here’s a list of the key dependencies used in this project:
 | Dependency                         | Version |
 |------------------------------------|------|
 | **Spring Boot**                    | 3.3.3 |
+| **JDK LTS**                    | 17 |
 | **JUnit**                          | 5    |
 | **Lombok**                         | 1.18 |
 | **Flapdoodle Embedded MongoDB(For Testing)**    | 4.17  |
