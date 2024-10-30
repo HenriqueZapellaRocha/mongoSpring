@@ -28,9 +28,6 @@ dependencies {
 	testImplementation group: 'de.flapdoodle.embed', name: 'de.flapdoodle.embed.mongo', version: '4.17.0'
 	implementation group: 'org.springframework.boot', name: 'spring-boot-starter-validation', version: '3.3.4'
 	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.2.0'
-
-
-
 }
 
 tasks.named('test') {

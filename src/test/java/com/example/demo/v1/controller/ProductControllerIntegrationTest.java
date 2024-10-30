@@ -2,7 +2,7 @@ package com.example.demo.v1.controller;
 
 import com.example.demo.dtos.InvalidInputValuesExceptionDTO;
 import com.example.demo.dtos.NotFoundExceptionDTO;
-import com.example.demo.exception.NotFoundException;
+import com.example.demo.repository.ProductRepository;
 import com.example.demo.repository.entity.ProductEntity;
 import com.example.demo.service.services.CookieService;
 import com.example.demo.service.services.ProductService;
@@ -12,7 +12,6 @@ import jakarta.servlet.http.Cookie;
 import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -22,14 +21,12 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import java.math.BigDecimal;
-import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -37,18 +34,21 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ActiveProfiles( "test" )
 @SpringBootTest
 @AutoConfigureMockMvc
-class ProductControllerTest {
+class ProductControllerIntegrationTest {
 
     @Autowired
     private MockMvc mockMvc;
-    @MockBean
+    @Autowired
     private ProductService productService;
+    @Autowired
+    private ProductRepository productRepository;
     @MockBean
     private CookieService cookieService;
     @Autowired
     private ProductController productController;
 
     private ProductRequestDTO productRequest;
+    private ProductRequestDTO productRequest2;
     private ProductEntity product1;
     private ProductEntity product2;
     ProductResponseDTO productResponse1;
@@ -56,9 +56,9 @@ class ProductControllerTest {
 
     @BeforeEach
     public void setup() {
-        productRequest = ProductRequestDTO.builder()
-                .name( "CLANG" )
-                .price( new BigDecimal( "200.0" ) )
+        productRequest2 = ProductRequestDTO.builder()
+                .name( "JVM" )
+                .price( new BigDecimal( "350.50" ) )
                 .build();
 
         productResponse1 = ProductResponseDTO.builder()
@@ -76,58 +76,93 @@ class ProductControllerTest {
                         .value(new BigDecimal("5500.00"))
                         .build()).name("WHITEMANE")
                 .build();
-
-        product1 = productRequest.toEntity();
-        product2 = new ProductEntity( UUID.randomUUID().toString(),"GCC", new BigDecimal( "300.50" ) );
-        MockitoAnnotations.openMocks(this);
+        productRepository.deleteAll();
     }
 
     @Test
     void productControllerTestAddProductReturnOk() throws Exception {
-
         //when
-        when(productService.add(any(),any(),any())).thenReturn( ProductResponseDTO.entityToResponse( product1, "USD" ) ) ;
+        productRequest = ProductRequestDTO.builder()
+                .name( "CLANG" )
+                .price( new BigDecimal( "200.0" ) )
+                .build();
         //perform
         ResultActions response = mockMvc.perform( post( "/product/add" )
-                .contentType(MediaType.APPLICATION_JSON)
-                .content( new ObjectMapper().writeValueAsString( productRequest ) )
-                .param( "currency", "BRL" ))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content( new ObjectMapper().writeValueAsString( productRequest ) )
+                        .param( "currency", "BRL" ))
                 .andExpect(status().isOk());
         //expect
         ProductResponseDTO productResponseDTO = new ObjectMapper().readValue(
                 response.andReturn().getResponse().getContentAsString(),
                 ProductResponseDTO.class );
 
-        assertEquals( productResponseDTO.name(), product1.getName() );
-        assertEquals( productResponseDTO.price().value(), product1.getPrice() );
-        assertEquals( productResponseDTO.productID(), product1.getProductID() );
+        assertEquals( productResponseDTO.name(), productRequest.name() );
+        assertNotEquals( productResponseDTO.price().value(), productRequest.price() );
+        assertEquals( productResponseDTO.price().currency(), "USD" );
+        assertNotEquals( Objects.requireNonNull(productRepository.
+                        findById(productResponseDTO.productID()).orElse(null))
+                .getPrice(), productRequest.price() );
+        assertEquals( Objects.requireNonNull(productRepository.
+                        findById(productResponseDTO.productID()).orElse(null))
+                .getName(), productRequest.name() );
+
+        //doing when it is USD beacuse the return need be the same value
+        //when
+        productRequest = ProductRequestDTO.builder()
+                .name( "CLANG" )
+                .price( new BigDecimal( "200.0" ) )
+                .build();
+        //perform
+        response = mockMvc.perform( post( "/product/add" )
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content( new ObjectMapper().writeValueAsString( productRequest ) )
+                        .param( "currency", "USD" ))
+                .andExpect(status().isOk());
+        //expect
+        productResponseDTO = new ObjectMapper().readValue(
+                response.andReturn().getResponse().getContentAsString(),
+                ProductResponseDTO.class );
+
+        assertEquals( productResponseDTO.name(), productRequest.name() );
+        assertEquals( productResponseDTO.price().value(), productRequest.price() );
+        assertEquals( productResponseDTO.price().currency(), "USD" );
+        assertEquals(0, Objects.requireNonNull(productRepository.
+                        findById(productResponseDTO.productID()).orElse(null))
+                .getPrice().compareTo(productRequest.price()));
+        assertEquals( Objects.requireNonNull(productRepository.
+                        findById(productResponseDTO.productID()).orElse(null))
+                .getName(), productRequest.name() );
     }
 
 
     @Test
     void productControllerTest_addInvalidProduct_trowExceptionAndReturnError() throws Exception {
         //when
-                                                        //blank name and negative number
-        ProductRequestDTO productRequestDTO = new ProductRequestDTO( "", BigDecimal.valueOf( -1.0 ) ) ;
+        //blank name and negative number
+        productRequest = ProductRequestDTO.builder()
+                .name( "" )
+                .price( new BigDecimal( "-200.0" ) )
+                .build();
 
         //perform
         ResultActions response = mockMvc.perform( post( "/product/add" )
-                .contentType( MediaType.APPLICATION_JSON )
-                .content( new ObjectMapper().writeValueAsString( productRequestDTO ) )
-                .param( "currency", "BRL" ))
+                        .contentType( MediaType.APPLICATION_JSON )
+                        .content( new ObjectMapper().writeValueAsString( productRequest ) )
+                        .param( "currency", "BRL" ))
                 .andExpect( status().isBadRequest() );;
 
         //expect
         response.andExpect( status().isBadRequest() );
 
         List<String> errors = new ObjectMapper().readValue( response.andReturn().getResponse().getContentAsString(),
-                                                                    InvalidInputValuesExceptionDTO.class ).getErrors();
+                InvalidInputValuesExceptionDTO.class ).getErrors();
 
         assertTrue( errors.contains( "name: blank name" ) );
         assertTrue( errors.contains( "price: negative number" ) );
 
         //when, setting to null  the price
-        ProductRequestDTO request2 = new ProductRequestDTO( productRequestDTO.name(), null );
+        ProductRequestDTO request2 = new ProductRequestDTO( productRequest.name(), null );
 
         //perform
         response = mockMvc.perform( post( "/product/add" )
@@ -138,7 +173,7 @@ class ProductControllerTest {
         response.andExpect( status().isBadRequest() );
 
         errors = new ObjectMapper().readValue( response.andReturn().getResponse().getContentAsString(),
-                                                    InvalidInputValuesExceptionDTO.class ).getErrors();
+                InvalidInputValuesExceptionDTO.class ).getErrors();
         assertTrue( errors.contains( "price: blank price" ) );
 
     }
@@ -146,12 +181,15 @@ class ProductControllerTest {
     @Test
     void productControllerTest_addProductWithInvalidCurrency_trowExceptionAndReturnError() throws Exception {
         //when
-        when(productService.add(any(),any(),any())).thenThrow( new NotFoundException( "currency not found" ) );
+        productRequest = ProductRequestDTO.builder()
+                .name( "CLANG" )
+                .price( new BigDecimal( "200.0" ) )
+                .build();
         //perform
         ResultActions response = mockMvc.perform( post( "/product/add" )
-                .contentType( MediaType.APPLICATION_JSON )
-                .content( new ObjectMapper().writeValueAsString( productRequest ) )
-                .param( "currency", "ZUD" ))
+                        .contentType( MediaType.APPLICATION_JSON )
+                        .content( new ObjectMapper().writeValueAsString( productRequest ) )
+                        .param( "currency", "ZUD" ))
                 .andExpect( status().isNotFound() );
         //expect
         NotFoundExceptionDTO notFound = new ObjectMapper().readValue(
@@ -165,29 +203,36 @@ class ProductControllerTest {
     @Test
     void productControllerTest_getProductById_returnProduct() throws Exception {
         //when
-        when( productService.getById( any(), any(), any()) )
-                    .thenReturn( productResponse1 );
+        productRequest = ProductRequestDTO.builder()
+                .name( "CLANG" )
+                .price( new BigDecimal( "200.0" ) )
+                .build();
+
+        ProductEntity productEntity = productRepository.save( productRequest.toEntity() );
 
         //perform
-        ResultActions response = mockMvc.perform(get( "/product/"+product1.getProductID() )
+        ResultActions response = mockMvc.perform(get( "/product/"+productEntity.getProductID() )
                         .contentType(MediaType.APPLICATION_JSON)
-                        .param("currency", "BRL" ))
+                        .param("currency", "USD" ))
                 .andExpect( status().isOk() );
         //expect
         ProductResponseDTO productResponseDTO = new ObjectMapper().readValue(
                 response.andReturn().getResponse().getContentAsString(),
                 ProductResponseDTO.class );
-        assertEquals( productResponseDTO, productResponse1 );
+        assertEquals( productResponseDTO.productID(), productEntity.getProductID() );
+        assertEquals( productResponseDTO.name(), productEntity.getName() );
+        assertEquals( productResponseDTO.price().value(), productEntity.getPrice() );
+        assertEquals( productResponseDTO.price().currency(), "USD" );
     }
 
     @Test
     void productControllerTest_getProductById_throwProductNotFoundException() throws Exception {
         //when
-        when( productService.getById( any(), any(), any()) ).thenThrow( new NotFoundException( "No product found" ) );
+        String randomIdNotExist = UUID.randomUUID().toString();
         //perform
-        ResultActions response = mockMvc.perform(get( "/product/"+product1.getProductID() )
-                .contentType(MediaType.APPLICATION_JSON)
-                .param("currency", "BRL" ))
+        ResultActions response = mockMvc.perform(get( "/product/"+randomIdNotExist )
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("currency", "BRL" ))
                 .andExpect( status().isNotFound() );
         //expect
         NotFoundExceptionDTO notFound = new ObjectMapper().readValue(
@@ -199,11 +244,16 @@ class ProductControllerTest {
     @Test
     void productControllerTest_getProductById_throwNotFoundCurrencyException() throws Exception {
         //when
-        when( productService.getById( any(), any(), any()) ).thenThrow( new NotFoundException( "currency not found" ) );
+        productRequest = ProductRequestDTO.builder()
+                .name( "CLANG" )
+                .price( new BigDecimal( "200.0" ) )
+                .build();
+
+        ProductEntity productEntity = productRepository.save( productRequest.toEntity() );
         //perform
-        ResultActions response = mockMvc.perform(get( "/product/"+product1.getProductID() )
+        ResultActions response = mockMvc.perform(get( "/product/"+productEntity.getProductID() )
                         .contentType(MediaType.APPLICATION_JSON)
-                        .param("currency", "BRL" ))
+                        .param("currency", "ZZZ" ))
                 .andExpect( status().isNotFound() );
         //expect
         NotFoundExceptionDTO notFound = new ObjectMapper().readValue(
@@ -215,32 +265,51 @@ class ProductControllerTest {
     @Test
     void productControllerTest_getAllProducts_returnAllProducts() throws Exception {
         //when
-        List<ProductResponseDTO> productsResponse = List.of(productResponse1, productResponse2);
-         when( productService.getAll( any(), any()) ).thenReturn( productsResponse );
+        productRequest2 = ProductRequestDTO.builder()
+                .name( "JVM" )
+                .price( new BigDecimal( "350.50" ) )
+                .build();
+        productRequest = ProductRequestDTO.builder()
+                .name( "CLANG" )
+                .price( new BigDecimal( "200.0" ) )
+                .build();
+        productRepository.saveAll( List.of( productRequest.toEntity(), productRequest2.toEntity() ) );
 
         //perform
-         ResultActions response = mockMvc.perform( get( "/product/All" )
-                 .contentType( MediaType.APPLICATION_JSON )
-                 .param( "currency", "BRL" ) )
-                 .andExpect( status().isOk() );
+        ResultActions response = mockMvc.perform( get( "/product/All" )
+                        .contentType( MediaType.APPLICATION_JSON )
+                        .param( "currency", "USD" ) )
+                .andExpect( status().isOk() );
 
         //expect
         List<ProductResponseDTO> productsResponseList = new ObjectMapper().readValue(
                 response.andReturn().getResponse().getContentAsString(),
                 new TypeReference<List<ProductResponseDTO>>(){} );
 
-        assertEquals(productsResponseList.get(0), productResponse1);
-        assertEquals(productsResponseList.get(1), productResponse2);
+        assertEquals(productsResponseList.get(0).name(), productRequest.name() );
+        assertEquals(productsResponseList.get(0).price().value(), productRequest.price() );
+        assertEquals(productsResponseList.get(0).price().currency(), "USD" );
+        assertEquals(productsResponseList.get(1).name(), productRequest2.name() );
+        assertEquals(productsResponseList.get(1).price().value(), productRequest2.price() );
+        assertEquals(productsResponseList.get(1).price().currency(), "USD" );
     }
 
     @Test
-    void productControllerTest_getAllProducts_throwProductNotFoundException() throws Exception {
+    void productControllerTest_getAllProducts_throwCurrencyNotFoundException() throws Exception {
         //when
-        when( productService.getAll( any(), any() ) ).thenThrow( new NotFoundException( "currency not found" ) );
+        productRequest2 = ProductRequestDTO.builder()
+                .name( "JVM" )
+                .price( new BigDecimal( "350.50" ) )
+                .build();
+        productRequest = ProductRequestDTO.builder()
+                .name( "CLANG" )
+                .price( new BigDecimal( "200.0" ) )
+                .build();
+        productRepository.saveAll( List.of( productRequest.toEntity(), productRequest2.toEntity() ) );
         //perform
         ResultActions response = mockMvc.perform(get( "/product/All" )
                         .contentType(MediaType.APPLICATION_JSON)
-                        .param("currency", "BRL" ))
+                        .param("currency", "DUMB CURRENCy" ))
                 .andExpect( status().isNotFound() );
         //expect
         NotFoundExceptionDTO notFound = new ObjectMapper().readValue(
@@ -251,12 +320,11 @@ class ProductControllerTest {
 
     @Test
     void productControllerTest_getAllProductsWithBlankDB_returnBlankList() throws Exception {
-        //when
-        when(productService.getAll( any(), any() ) ).thenReturn( new LinkedList<>() );
+        //when, nothing ;)
         //perform
         ResultActions response = mockMvc.perform( get( "/product/All" )
-                .contentType( MediaType.APPLICATION_JSON )
-                .param( "currency", "BRL" ) )
+                        .contentType( MediaType.APPLICATION_JSON )
+                        .param( "currency", "BRL" ) )
                 .andExpect( status().isOk() );
 
         //expect
@@ -266,26 +334,30 @@ class ProductControllerTest {
     @Test
     void productControllerTest_getLast_returnTheLastProductInCookie() throws Exception {
         //when
-        when( productService.getById(any(), any(), any()) )
-                .thenReturn( productResponse1 );
+        productRequest = ProductRequestDTO.builder()
+                .name( "CLANG" )
+                .price( new BigDecimal( "200.0" ) )
+                .build();
+        ProductEntity productEntity = productRepository.save( productRequest.toEntity() );
         //perform
-       ResultActions response = mockMvc.perform(get("/product/last")
-                .param( "currency", "BRL" )
-                        .cookie(new Cookie("last", product1.getProductID()))
-                .contentType( MediaType.APPLICATION_JSON ) )
+        ResultActions response = mockMvc.perform(get("/product/last")
+                        .param( "currency", "BRL" )
+                        .cookie( new Cookie("last", productEntity.getProductID() ) )
+                        .contentType( MediaType.APPLICATION_JSON ) )
                 .andExpect( status().isOk() );
         //expect
         ProductResponseDTO productResponseDTO = new ObjectMapper().readValue(
                 response.andReturn().getResponse().getContentAsString(),
                 ProductResponseDTO.class );
-        assertEquals( productResponseDTO, productResponse1 );
+        assertEquals( productResponseDTO.name(), productEntity.getName() );
+        assertNotEquals( productResponseDTO.price().value(), productRequest.price() );
+        assertEquals( productResponseDTO.price().currency(), "BRL" );
+        assertEquals( productResponseDTO.productID(), productEntity.getProductID() );
     }
 
     @Test
     void productControllerTest_getLast_returnErrorCookieNotSet() throws Exception {
-        //when
-        when( productService.getById(any(), any(), any()) )
-                .thenReturn(ProductResponseDTO.entityToResponse(product1, "BRL"));
+        //when, nothing ;)
         //perform
         ResultActions response = mockMvc.perform(get("/product/last")
                         .param( "currency", "BRL" )
@@ -301,12 +373,21 @@ class ProductControllerTest {
     @Test
     void productControllerTest_DeleteManyById_returnOK() throws Exception {
         //when
-        doNothing().when( productService ).deleteMany( any() );
+        productRequest2 = ProductRequestDTO.builder()
+                .name( "JVM" )
+                .price( new BigDecimal( "350.50" ) )
+                .build();
+        productRequest = ProductRequestDTO.builder()
+                .name( "CLANG" )
+                .price( new BigDecimal( "200.0" ) )
+                .build();
+        ProductEntity productEntity = productRepository.save( productRequest.toEntity() );
+        ProductEntity productEntity2 =  productRepository.save( productRequest2.toEntity() );
         //perform
         ResultActions response = mockMvc.perform( delete( "/product" )
                 .contentType( MediaType.APPLICATION_JSON )
-                .content( new ObjectMapper().writeValueAsString( List.of( product1.getProductID()
-                                                                        , product2.getProductID() ) )));
+                .content( new ObjectMapper().writeValueAsString( List.of( productEntity.getProductID()
+                        , productEntity2.getProductID() ) ) ) );
         //expect
         response.andExpect( status().isOk() );
         assertTrue( response.andReturn().getResponse().getContentAsString().isEmpty() );
@@ -315,9 +396,13 @@ class ProductControllerTest {
     @Test
     void productControllerTest_DeleteById_returnOK() throws Exception {
         //when
-        doNothing().when( productService ).deleteMany( any() );
+        productRequest = ProductRequestDTO.builder()
+                .name( "JVM" )
+                .price( new BigDecimal( "200.0" ) )
+                .build();
+        ProductEntity productEntity = productRepository.save( productRequest.toEntity() );
         //perform
-        ResultActions response = mockMvc.perform( delete( "/product/"+product1.getProductID() ) );
+        ResultActions response = mockMvc.perform( delete( "/product/"+productEntity.getProductID() ) );
         //expect
         response.andExpect( status().isOk() );
         assertTrue( response.andReturn().getResponse().getContentAsString().isEmpty() );
