@@ -1,6 +1,6 @@
-# Spring Boot MVC Products API 
+# Spring Boot MVC Products API <img src="https://spring.io/img/logos/spring-initializr.svg" alt="Spring Boot Logo" width="80" height="60"/>
 
-<img src="https://spring.io/img/logos/spring-initializr.svg" alt="Spring Boot Logo" width="200" height="100"/>
+
 
 
 * **This API is created for educational purposes.**
@@ -40,3 +40,11 @@ To run the API, simply enter the following command in your terminal:
 
 ```bash
 ./gradlew bootRun
+```
+---
+# Documentation 
+
+** The API is documented using Swagger. 
+You can view the documentation by running the 
+project and navigating to the following 
+link: http://localhost:8080/swagger-ui/index.html#/ **
