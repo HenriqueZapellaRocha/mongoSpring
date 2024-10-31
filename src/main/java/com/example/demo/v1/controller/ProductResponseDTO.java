@@ -1,5 +1,6 @@
 package com.example.demo.v1.controller;
 
+import com.example.demo.exception.NotFoundException;
 import com.example.demo.repository.entity.ProductEntity;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
@@ -23,6 +24,7 @@ public record ProductResponseDTO(
                 .price(new PriceResponse(currency, productEntity.getPrice()))
                 .build();
     }
+
     @Builder
     public record PriceResponse(
             @Schema(description = "The currency used in the price", example = "USD")

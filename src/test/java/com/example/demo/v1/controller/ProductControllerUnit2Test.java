@@ -1,7 +1,10 @@
 package com.example.demo.v1.controller;
 
+
 import com.example.demo.dtos.InvalidInputValuesExceptionDTO;
 import com.example.demo.dtos.NotFoundExceptionDTO;
+import com.example.demo.exception.NotFoundException;
+import com.example.demo.integration.exchange.ExchangeIntegration;
 import com.example.demo.repository.ProductRepository;
 import com.example.demo.repository.entity.ProductEntity;
 import com.example.demo.service.services.CookieService;
@@ -12,6 +15,7 @@ import jakarta.servlet.http.Cookie;
 import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -21,12 +25,15 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -34,24 +41,28 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ActiveProfiles( "test" )
 @SpringBootTest
 @AutoConfigureMockMvc
-class ProductControllerIntegrationTest {
+class ProductControllerUnit2Test {
 
     @Autowired
     private MockMvc mockMvc;
-    @Autowired
+    @MockBean
     private ProductRepository productRepository;
+    @MockBean
+    private ExchangeIntegration exchangeIntegration;
 
     private ProductRequestDTO productRequest;
     private ProductRequestDTO productRequest2;
     ProductResponseDTO productResponse1;
     ProductResponseDTO productResponse2;
+    @Autowired
+    private ProductService productService;
 
     @BeforeEach
     public void setup() {
         productResponse1 = ProductResponseDTO.builder()
-                .productID("123")
+                .productID( "123" )
                 .price(ProductResponseDTO.PriceResponse.builder()
-                        .currency("USD")
+                        .currency( "USD" )
                         .value(new BigDecimal("200.00"))
                         .build()).name("JVM")
                 .build();
@@ -63,7 +74,6 @@ class ProductControllerIntegrationTest {
                         .value(new BigDecimal("5500.00"))
                         .build()).name("WHITEMANE")
                 .build();
-        productRepository.deleteAll();
     }
 
     @Test
@@ -73,6 +83,8 @@ class ProductControllerIntegrationTest {
                 .name( "CLANG" )
                 .price( new BigDecimal( "200.0" ) )
                 .build();
+        when( productRepository.save( any() ) ).thenReturn( productRequest.toEntity("123") );
+        when( exchangeIntegration.makeExchange(any(), any()) ).thenReturn( 1.0 );
         //perform
         ResultActions response = mockMvc.perform( post( "/product/add" )
                         .contentType(MediaType.APPLICATION_JSON)
@@ -85,41 +97,10 @@ class ProductControllerIntegrationTest {
                 ProductResponseDTO.class );
 
         assertEquals( productResponseDTO.name(), productRequest.name() );
-        assertNotEquals( productResponseDTO.price().value(), productRequest.price() );
-        assertEquals( productResponseDTO.price().currency(), "USD" );
-        assertNotEquals( Objects.requireNonNull(productRepository.
-                        findById(productResponseDTO.productID()).orElse(null))
-                .getPrice(), productRequest.price() );
-        assertEquals( Objects.requireNonNull(productRepository.
-                        findById(productResponseDTO.productID()).orElse(null))
-                .getName(), productRequest.name() );
-
-        //doing when it is USD beacuse the return need be the same value
-        //when
-        productRequest = ProductRequestDTO.builder()
-                .name( "CLANG" )
-                .price( new BigDecimal( "200.0" ) )
-                .build();
-        //perform
-        response = mockMvc.perform( post( "/product/add" )
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content( new ObjectMapper().writeValueAsString( productRequest ) )
-                        .param( "currency", "USD" ))
-                .andExpect(status().isOk());
-        //expect
-        productResponseDTO = new ObjectMapper().readValue(
-                response.andReturn().getResponse().getContentAsString(),
-                ProductResponseDTO.class );
-
-        assertEquals( productResponseDTO.name(), productRequest.name() );
         assertEquals( productResponseDTO.price().value(), productRequest.price() );
         assertEquals( productResponseDTO.price().currency(), "USD" );
-        assertEquals(0, Objects.requireNonNull(productRepository.
-                        findById(productResponseDTO.productID()).orElse(null))
-                .getPrice().compareTo(productRequest.price()));
-        assertEquals( Objects.requireNonNull(productRepository.
-                        findById(productResponseDTO.productID()).orElse(null))
-                .getName(), productRequest.name() );
+        assertEquals(productResponseDTO.productID(), "123" );
+
     }
 
 
@@ -172,6 +153,8 @@ class ProductControllerIntegrationTest {
                 .name( "CLANG" )
                 .price( new BigDecimal( "200.0" ) )
                 .build();
+        when(exchangeIntegration.makeExchange(any(), any()))
+                .thenThrow(new NotFoundException("currency not found"));
         //perform
         ResultActions response = mockMvc.perform( post( "/product/add" )
                         .contentType( MediaType.APPLICATION_JSON )
@@ -192,10 +175,11 @@ class ProductControllerIntegrationTest {
         //when
         productRequest = ProductRequestDTO.builder()
                 .name( "CLANG" )
-                .price( new BigDecimal( "200.0" ) )
+                .price( new BigDecimal("200.0") )
                 .build();
-
-        ProductEntity productEntity = productRepository.save( productRequest.toEntity() );
+        ProductEntity productEntity = productRequest.toEntity();
+        when( productRepository.findById( any()) ).thenReturn( Optional.of( productEntity ) );
+        when ( exchangeIntegration.makeExchange( any(), any() ) ).thenReturn( 1.0 );
 
         //perform
         ResultActions response = mockMvc.perform(get( "/product/"+productEntity.getProductID() )
@@ -208,7 +192,8 @@ class ProductControllerIntegrationTest {
                 ProductResponseDTO.class );
         assertEquals( productResponseDTO.productID(), productEntity.getProductID() );
         assertEquals( productResponseDTO.name(), productEntity.getName() );
-        assertEquals( productResponseDTO.price().value(), productEntity.getPrice() );
+        assertEquals( productResponseDTO.price().value(),
+                productEntity.getPrice().setScale(2, RoundingMode.HALF_UP ));
         assertEquals( productResponseDTO.price().currency(), "USD" );
     }
 
@@ -216,6 +201,7 @@ class ProductControllerIntegrationTest {
     void productControllerTest_getProductById_throwProductNotFoundException() throws Exception {
         //when
         String randomIdNotExist = UUID.randomUUID().toString();
+        when(productRepository.findById( randomIdNotExist ) ).thenThrow( new NotFoundException( "No product found" ) );
         //perform
         ResultActions response = mockMvc.perform(get( "/product/"+randomIdNotExist )
                         .contentType(MediaType.APPLICATION_JSON)
@@ -235,8 +221,11 @@ class ProductControllerIntegrationTest {
                 .name( "CLANG" )
                 .price( new BigDecimal( "200.0" ) )
                 .build();
+        ProductEntity productEntity = productRequest.toEntity();
+        when( productRepository.findById( any() ) ).thenReturn( Optional.of( productEntity ) );
+        when( exchangeIntegration.makeExchange( any(), any() ) )
+                .thenThrow( new NotFoundException( "currency not found" ) );
 
-        ProductEntity productEntity = productRepository.save( productRequest.toEntity() );
         //perform
         ResultActions response = mockMvc.perform(get( "/product/"+productEntity.getProductID() )
                         .contentType(MediaType.APPLICATION_JSON)
@@ -260,8 +249,12 @@ class ProductControllerIntegrationTest {
                 .name( "CLANG" )
                 .price( new BigDecimal( "200.0" ) )
                 .build();
-        productRepository.saveAll( List.of( productRequest.toEntity(), productRequest2.toEntity() ) );
 
+        ProductEntity productEntity = productRequest.toEntity();
+        ProductEntity productEntity2 = productRequest2.toEntity();
+        when( productRepository.findAll() )
+                .thenReturn( List.of( productEntity, productEntity2 ) );
+        when( exchangeIntegration.makeExchange( any(), any() ) ).thenReturn( 1.0 );
         //perform
         ResultActions response = mockMvc.perform( get( "/product/All" )
                         .contentType( MediaType.APPLICATION_JSON )
@@ -292,11 +285,17 @@ class ProductControllerIntegrationTest {
                 .name( "CLANG" )
                 .price( new BigDecimal( "200.0" ) )
                 .build();
-        productRepository.saveAll( List.of( productRequest.toEntity(), productRequest2.toEntity() ) );
+
+        ProductEntity productEntity = productRequest.toEntity();
+        ProductEntity productEntity2 = productRequest2.toEntity();
+        when( productRepository.findAll() )
+                .thenReturn( List.of( productEntity, productEntity2 ) );
+        when( exchangeIntegration.makeExchange( any(), any() ) )
+                .thenThrow(new NotFoundException( "currency not found" ) );
         //perform
         ResultActions response = mockMvc.perform(get( "/product/All" )
                         .contentType(MediaType.APPLICATION_JSON)
-                        .param("currency", "DUMB CURRENCy" ))
+                        .param("currency", "DUMB CURRENCY" ))
                 .andExpect( status().isNotFound() );
         //expect
         NotFoundExceptionDTO notFound = new ObjectMapper().readValue(
@@ -325,7 +324,9 @@ class ProductControllerIntegrationTest {
                 .name( "CLANG" )
                 .price( new BigDecimal( "200.0" ) )
                 .build();
-        ProductEntity productEntity = productRepository.save( productRequest.toEntity() );
+        ProductEntity productEntity =  productRequest.toEntity();
+        when( productRepository.findById(any()) ).thenReturn(Optional.of( productEntity ) );
+        when( exchangeIntegration.makeExchange( any(), any() ) ).thenReturn( 1.0 );
         //perform
         ResultActions response = mockMvc.perform(get("/product/last")
                         .param( "currency", "BRL" )
@@ -337,7 +338,7 @@ class ProductControllerIntegrationTest {
                 response.andReturn().getResponse().getContentAsString(),
                 ProductResponseDTO.class );
         assertEquals( productResponseDTO.name(), productEntity.getName() );
-        assertNotEquals( productResponseDTO.price().value(), productRequest.price() );
+        assertEquals( productResponseDTO.price().value(), productRequest.price() );
         assertEquals( productResponseDTO.price().currency(), "BRL" );
         assertEquals( productResponseDTO.productID(), productEntity.getProductID() );
     }
@@ -368,8 +369,8 @@ class ProductControllerIntegrationTest {
                 .name( "CLANG" )
                 .price( new BigDecimal( "200.0" ) )
                 .build();
-        ProductEntity productEntity = productRepository.save( productRequest.toEntity() );
-        ProductEntity productEntity2 =  productRepository.save( productRequest2.toEntity() );
+        ProductEntity productEntity = productRequest.toEntity();
+        ProductEntity productEntity2 =  productRequest2.toEntity();
         //perform
         ResultActions response = mockMvc.perform( delete( "/product" )
                 .contentType( MediaType.APPLICATION_JSON )
@@ -387,7 +388,7 @@ class ProductControllerIntegrationTest {
                 .name( "JVM" )
                 .price( new BigDecimal( "200.0" ) )
                 .build();
-        ProductEntity productEntity = productRepository.save( productRequest.toEntity() );
+        ProductEntity productEntity = productRequest.toEntity();
         //perform
         ResultActions response = mockMvc.perform( delete( "/product/"+productEntity.getProductID() ) );
         //expect

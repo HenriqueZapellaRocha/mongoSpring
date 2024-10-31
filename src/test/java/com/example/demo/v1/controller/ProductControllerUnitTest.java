@@ -43,10 +43,7 @@ class ProductControllerUnitTest {
     private MockMvc mockMvc;
     @MockBean
     private ProductService productService;
-    @MockBean
-    private CookieService cookieService;
-    @Autowired
-    private ProductController productController;
+
 
     private ProductRequestDTO productRequest;
     private ProductEntity product1;
