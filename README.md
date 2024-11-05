@@ -18,14 +18,15 @@
 
 Here’s a list of the key dependencies used in this project:
 
-| Dependency                         | Version |
-|------------------------------------|------|
-| **Spring Boot**                    | 3.3.3 |
-| **JDK LTS**                    | 17 |
-| **JUnit**                          | 5    |
-| **Lombok**                         | 1.18 |
-| **Flapdoodle Embedded MongoDB(For Testing)**    | 4.17  |
-| **Springdoc OpenAPI**              | 2.2  |
+| Dependency                                   | Version |
+|----------------------------------------------|---|
+| **Spring Boot**                              | 3.3.3 |
+| **Spring cloud config**                      | 2023.0.3  |
+| **JDK LTS**                                  | 17 |
+| **JUnit**                                    | 5 |
+| **Lombok**                                   | 1.18 |
+| **Flapdoodle Embedded MongoDB(For Testing)** | 4.17 |
+| **Springdoc OpenAPI**                        | 2.2 |
 ---
 # Database Used 
 

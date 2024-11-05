@@ -67,7 +67,7 @@ class ExchangeIntegrationTest {
                 HttpClientErrorException.class,
                 () -> exchangeIntegration.makeExchange( from, to )
         );
-        //when
+        //when 
         String from2 = "ZZZ";
         String to2 = "USD";
         //perform //expect
