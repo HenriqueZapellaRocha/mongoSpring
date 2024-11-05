@@ -2,7 +2,6 @@ package com.example.demo.v1.controller;
 
 import java.util.LinkedList;
 import java.util.List;
-
 import com.example.demo.dtos.CookieNotSetExceptionDTO;
 import com.example.demo.dtos.InvalidInputValuesExceptionDTO;
 import com.example.demo.dtos.NotFoundExceptionDTO;
@@ -20,7 +19,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-
 import com.example.demo.repository.entity.ProductEntity;
 import com.example.demo.service.services.ProductService;
 
@@ -37,7 +35,7 @@ public class ProductController {
             @Schema(implementation = InvalidInputValuesExceptionDTO.class ))),
             @ApiResponse(responseCode = "404", description = "When the currency not found or product",
                     content = @Content(schema =
-            @Schema(implementation = NotFoundExceptionDTO.class, example = "Not found currecy"))), })
+            @Schema(implementation = NotFoundExceptionDTO.class, example = "Not found currency"))), })
     @PostMapping( "/add" )
     public ProductResponseDTO add( @RequestBody @Valid ProductRequestDTO product,
                             @RequestParam( name = "currency" ) String currency ) {
@@ -84,7 +82,7 @@ public class ProductController {
         return productService.getAll( "USD", currency );
     }
 
-    @Operation( description = "Update all informations of a product",
+    @Operation( description = "Update all information's of a product",
     responses = {@ApiResponse(responseCode = "404", description = "When currency not found", content =
     @Content(schema = @Schema(implementation = NotFoundExceptionDTO.class ), examples = {
             @ExampleObject(name = "Product not Found"),

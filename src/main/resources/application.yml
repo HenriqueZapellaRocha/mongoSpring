@@ -1,8 +1,0 @@
-spring:
-  data:
-    mongo:
-    mongodb:
-      uri: mongodb+srv://Keep321:Keep321@cluster0.gbvenho.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
-      database: Product
-
-

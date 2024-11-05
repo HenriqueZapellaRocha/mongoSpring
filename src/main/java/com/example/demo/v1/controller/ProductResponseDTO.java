@@ -1,6 +1,5 @@
 package com.example.demo.v1.controller;
 
-import com.example.demo.exception.NotFoundException;
 import com.example.demo.repository.entity.ProductEntity;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
